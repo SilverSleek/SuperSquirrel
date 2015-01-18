@@ -15,27 +15,25 @@ using SuperSquirrel.Wrappers;
 
 namespace SuperSquirrel.Entities
 {
-	class Player : ISimpleEventListener
+	class Player : LivingEntity, ISimpleEventListener
 	{
+		private const int STARTING_HEALTH = 20;
+		private const int CIRCLE_RADIUS = 10;
+
 		private Camera camera;
 		private Sprite sprite;
 		private Planet landedPlanet;
 		private Planet mostRecentPlanet;
 		private PlanetHelper planetHelper;
 		private LaserWrapper laserWrapper;
-		private BoundingCircle boundingCircle;
-
-		private Vector2 position;
-		private Vector2 velocity;
 
 		private PlanetRunningController runningController;
 
 		private List<ProximityData> dataList;
 
-		public Player(Planet startingPlanet, PlanetHelper planetHelper, LaserWrapper laserWrapper, Camera camera)
+		public Player(Planet startingPlanet, PlanetHelper planetHelper, LaserWrapper laserWrapper, Camera camera) :
+			base(Vector2.Zero, CIRCLE_RADIUS, STARTING_HEALTH)
 		{
-			const int BOUNDING_CIRCLE_RADIUS = 1;
-
 			const float ANGULAR_DECELERATION = MathHelper.Pi * 3;
 			const float ANGULAR_MAX_SPEED = MathHelper.Pi;
 
@@ -48,16 +46,11 @@ namespace SuperSquirrel.Entities
 			camera.Position = -startingPlanet.Center;
 			
 			sprite = new Sprite(ContentLoader.LoadTexture("Player"), Vector2.Zero, OriginLocations.CENTER);
-			boundingCircle = new BoundingCircle(Vector2.Zero, BOUNDING_CIRCLE_RADIUS);
 			runningController = new PlanetRunningController(startingPlanet, ANGULAR_DECELERATION, ANGULAR_MAX_SPEED);
 
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.KEYBOARD, this)));
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.MOUSE, this)));
-		}
-
-		public Vector2 Position
-		{
-			get { return position; }
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.HEALTH, STARTING_HEALTH));
 		}
 
 		public void EventResponse(SimpleEvent simpleEvent)
@@ -95,12 +88,12 @@ namespace SuperSquirrel.Entities
 					float speedX = (float)Math.Cos(angle) * JUMP_SPEED;
 					float speedY = (float)Math.Sin(angle) * JUMP_SPEED;
 
-					velocity = new Vector2(speedX, speedY);
+					Velocity = new Vector2(speedX, speedY);
 					mostRecentPlanet = landedPlanet;
 					landedPlanet = null;
 					runningController.Planet = null;
 
-					camera.SetLerpPositions(camera.Position, position);
+					camera.SetLerpPositions(camera.Position, Position);
 
 					break;
 				}
@@ -155,15 +148,28 @@ namespace SuperSquirrel.Entities
 
 			if (data.LeftButtonState == ButtonStates.PRESSED_THIS_FRAME)
 			{
-				float angle = Functions.ComputeAngle(position, data.NewWorldPosition);
+				float angle = Functions.ComputeAngle(Position, data.NewWorldPosition);
 				float speedX = (float)Math.Cos(angle) * LASER_SPEED;
 				float speedY = (float)Math.Sin(angle) * LASER_SPEED;
 
-				laserWrapper.Lasers.Add(new Laser(position, new Vector2(speedX, speedY), angle));
+				Vector2 laserVelocity = new Vector2(speedX, speedY);
+
+				SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LASER, new LaserEventData(Position, laserVelocity, angle, this)));
 			}
 		}
 
-		public void Update(float dt)
+		protected override void OnDamage(int damage)
+		{
+			base.OnDamage(damage);
+
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.HEALTH, Health));
+		}
+
+		protected override void OnDeath()
+		{
+		}
+
+		public override void Update(float dt)
 		{
 			const int MASS = 1;
 			const float CAMERA_DRIFT_FACTOR = 0.5f;
@@ -172,7 +178,7 @@ namespace SuperSquirrel.Entities
 			{
 				runningController.Update(dt);
 
-				position = runningController.Position;
+				Position = runningController.Position;
 				sprite.Rotation = runningController.Angle;
 
 				Vector2 cameraTarget = CalculateLandedCameraTarget();
@@ -188,17 +194,17 @@ namespace SuperSquirrel.Entities
 			}
 			else
 			{
-				dataList = planetHelper.GetProximityData(position);
+				dataList = planetHelper.GetProximityData(Position);
 
 				CheckPlanetLanding(dataList);
 
 				// if the player lands on a planet in the previous function, this variable will be non-null here
 				if (landedPlanet == null)
 				{
-					velocity += planetHelper.CalculateGravity(position, MASS, dataList) * dt;
-					position += velocity * dt;
+					Velocity += planetHelper.CalculateGravity(Position, MASS, dataList) * dt;
+					Position += Velocity * dt;
 
-					Vector2 cameraTarget = -(position - velocity * CAMERA_DRIFT_FACTOR);
+					Vector2 cameraTarget = -(Position - Velocity * CAMERA_DRIFT_FACTOR);
 
 					if (camera.Lerping)
 					{
@@ -211,8 +217,8 @@ namespace SuperSquirrel.Entities
 				}
 			}
 
-			sprite.Position = position;
-			boundingCircle.Center = position;
+			BoundingCircle.Center = Position;
+			sprite.Position = Position;
 		}
 
 		private void CheckPlanetLanding(List<ProximityData> dataList)
@@ -222,17 +228,17 @@ namespace SuperSquirrel.Entities
 			// this prevents an immediate collision with the planet you just jumped off
 			if (planet == mostRecentPlanet)
 			{
-				if (!boundingCircle.Intersects(mostRecentPlanet.BoundingCircle))
+				if (!BoundingCircle.Intersects(mostRecentPlanet.BoundingCircle))
 				{
 					mostRecentPlanet = null;
 				}
 			}
-			else if (boundingCircle.Intersects(planet.BoundingCircle))
+			else if (BoundingCircle.Intersects(planet.BoundingCircle))
 			{
 				landedPlanet = planet;
 
 				runningController.Planet = planet;
-				runningController.Angle = Functions.ComputeAngle(landedPlanet.Center, position);
+				runningController.Angle = Functions.ComputeAngle(landedPlanet.Center, Position);
 				runningController.AngularVelocity = 0;
 				runningController.AngularAcceleration = 0;
 
@@ -242,12 +248,12 @@ namespace SuperSquirrel.Entities
 
 		private Vector2 CalculateLandedCameraTarget()
 		{
-			Vector2 direction = Vector2.Normalize(landedPlanet.Center - position);
+			Vector2 direction = Vector2.Normalize(landedPlanet.Center - Position);
 
 			return -(landedPlanet.Center - direction * landedPlanet.Radius + direction * Planet.CAMERA_SURFACE_DEPTH);
 		}
 
-		public void Draw(SpriteBatch sb)
+		public override void Draw(SpriteBatch sb)
 		{
 			const int INDICATOR_LENGTH = 50;
 
@@ -257,7 +263,7 @@ namespace SuperSquirrel.Entities
 			{
 				for (int i = 0; i < dataList.Count; i++)
 				{
-					DrawingFunctions.DrawLine(sb, position, position + dataList[i].Direction * INDICATOR_LENGTH, Color.LightGray);
+					DrawingFunctions.DrawLine(sb, Position, Position + dataList[i].Direction * INDICATOR_LENGTH, Color.LightGray);
 				}
 			}
 		}

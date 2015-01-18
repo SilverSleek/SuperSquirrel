@@ -24,7 +24,7 @@ namespace SuperSquirrel.Wrappers
 		{
 			LaserEventData data = (LaserEventData)simpleEvent.Data;
 
-			Lasers.Add(new Laser(data.Position, data.Velocity, data.Rotation));
+			Lasers.Add(new Laser(data.Position, data.Velocity, data.Rotation, data.Owner));
 		}
 
 		public void Update(float dt)

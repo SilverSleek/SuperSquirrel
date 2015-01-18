@@ -1,33 +1,51 @@
 ﻿using System.Collections.Generic;
 
 using SuperSquirrel.Entities;
-using SuperSquirrel.Entities.Enemies;
+using SuperSquirrel.Entities.Events;
+using SuperSquirrel.Interfaces;
 
 namespace SuperSquirrel.Helpers
 {
-	class DamageHelper
+	class DamageHelper : ISimpleEventListener
 	{
 		private List<Laser> lasers;
-		private List<Enemy> enemies;
+		private List<LivingEntity> entities;
 
-		public DamageHelper(List<Laser> lasers, List<Enemy> enemies)
+		public DamageHelper(List<Laser> lasers)
 		{
 			this.lasers = lasers;
-			this.enemies = enemies;
+
+			entities = new List<LivingEntity>();
+
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.LIVING_ENTITY, this)));
+		}
+
+		public void EventResponse(SimpleEvent simpleEvent)
+		{
+			LivingEntityEventData data = (LivingEntityEventData)simpleEvent.Data;
+
+			if (data.Action == ActionTypes.ADD)
+			{
+				entities.Add(data.Entity);
+			}
+			else
+			{
+				entities.Remove(data.Entity);
+			}
 		}
 
 		public void Update()
 		{
 			const int LASER_DAMAGE = 1;
 
-			for (int i = 0; i < lasers.Count; i++)
+			foreach (Laser laser in lasers)
 			{
-				for (int j = 0; j < enemies.Count; j++)
+				foreach (LivingEntity entity in entities)
 				{
-					if (enemies[j].BoundingCircle.ContainsPoint(lasers[i].Tip))
+					if (laser.Owner != entity && entity.BoundingCircle.ContainsPoint(laser.Tip))
 					{
-						lasers[i].Destroy = true;
-						enemies[j].ApplyDamage(LASER_DAMAGE);
+						laser.Destroy = true;
+						entity.ApplyDamage(LASER_DAMAGE);
 					}
 				}
 			}

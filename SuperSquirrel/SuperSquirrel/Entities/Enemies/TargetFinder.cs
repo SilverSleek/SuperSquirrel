@@ -39,6 +39,8 @@ namespace SuperSquirrel.Entities.Enemies
 		private Vector2 targetPosition;
 		private Vector2 laserVelocity;
 
+		private float laserRotation;
+
 		private Player player;
 		private AIStates aiState;
 		private Timer targetTimer;
@@ -96,9 +98,11 @@ namespace SuperSquirrel.Entities.Enemies
 			const int LOCK_DURATION = 1500;
 			const int LASER_SPEED = 500;
 
+			laserVelocity = Vector2.Normalize(targetPosition - Position) * LASER_SPEED;
+			laserRotation = Functions.ComputeAngle(Position, targetPosition);
+
 			targetTimer = null;
 			otherTimer = new Timer(LOCK_DURATION, BeginFiring, false);
-			laserVelocity = Vector2.Normalize(targetPosition - Position) * LASER_SPEED;
 			aiState = AIStates.LOCK;
 		}
 
@@ -115,7 +119,7 @@ namespace SuperSquirrel.Entities.Enemies
 			const int TOTAL_SHOTS = 3;
 			const int COOLDOWN = 2500; 
 
-			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LASER, new LaserEventData(Position, 
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LASER, new LaserEventData(Position, laserVelocity, laserRotation, this)));
 
 			shotCount++;
 
@@ -134,6 +138,21 @@ namespace SuperSquirrel.Entities.Enemies
 			targetTimer = null;
 			otherTimer = null;
 			aiState = AIStates.IDLE;
+		}
+
+		protected override void OnDeath()
+		{
+			if (targetTimer != null)
+			{
+				targetTimer.Destroy = true;
+			}
+
+			if (otherTimer != null)
+			{
+				otherTimer.Destroy = true;
+			}
+
+			base.OnDeath();
 		}
 
 		public override void Draw(SpriteBatch sb)

@@ -14,7 +14,7 @@ namespace SuperSquirrel.Entities.Enemies
 		TARGET_FINDER
 	}
 
-	abstract class Enemy
+	abstract class Enemy : LivingEntity
 	{
 		private static Dictionary<EnemyTypes, string> nameMap;
 
@@ -25,12 +25,11 @@ namespace SuperSquirrel.Entities.Enemies
 			nameMap.Add(EnemyTypes.TARGET_FINDER, "TargetFinder");
 		}
 
-		private int health;
 		private int points;
 
-		public Enemy(EnemyTypes type, Vector2 position, int health, int points, int circleRadius)
+		public Enemy(EnemyTypes type, Vector2 position, int health, int points, int circleRadius) :
+			base(position, circleRadius, health)
 		{
-			this.health = health;
 			this.points = points;
 
 			Sprite = new Sprite(ContentLoader.LoadTexture("Enemies/" + nameMap[type]), position, OriginLocations.CENTER);
@@ -48,19 +47,14 @@ namespace SuperSquirrel.Entities.Enemies
 
 		protected abstract void AI(float dt);
 
-		public void ApplyDamage(int damage)
+		protected override void OnDeath()
 		{
-			health -= damage;
+			Destroy = true;
 
-			if (health <= 0)
-			{
-				Destroy = true;
-
-				SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.POINTS, points));
-			}
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.POINTS, points));
 		}
 
-		public virtual void Update(float dt)
+		public override void Update(float dt)
 		{
 			AI(dt);
 
@@ -69,7 +63,7 @@ namespace SuperSquirrel.Entities.Enemies
 			BoundingCircle.Center = Position;
 		}
 
-		public virtual void Draw(SpriteBatch sb)
+		public override void Draw(SpriteBatch sb)
 		{
 			Sprite.Draw(sb);
 		}

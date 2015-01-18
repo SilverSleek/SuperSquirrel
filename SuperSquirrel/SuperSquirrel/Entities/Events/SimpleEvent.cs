@@ -8,6 +8,8 @@ namespace SuperSquirrel.Entities.Events
 		KEYBOARD,
 		MOUSE,
 		GAMESTATE,
+		LIVING_ENTITY,
+		HEALTH,
 		POINTS,
 		LASER,
 		EXIT

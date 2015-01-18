@@ -17,12 +17,21 @@ namespace SuperSquirrel.Entities
 		}
 
 		private Sprite sprite;
-		private Vector2 velocity;
 
-		public Laser(Vector2 position, Vector2 velocity, float rotation)
+		private Vector2 velocity;
+		private Vector2 tipOffset;
+
+		public Laser(Vector2 position, Vector2 velocity, float rotation, LivingEntity owner)
 		{
+			const int TIP_OFFSET = 14;
+
 			this.velocity = velocity;
 
+			float tipOffsetX = (float)Math.Cos(rotation) * TIP_OFFSET;
+			float tipOffsetY = (float)Math.Sin(rotation) * TIP_OFFSET;
+
+			Owner = owner;
+			tipOffset = new Vector2(tipOffsetX, tipOffsetY);
 			sprite = new Sprite(texture, position, OriginLocations.CENTER);
 			sprite.Rotation = rotation;
 		}
@@ -31,16 +40,12 @@ namespace SuperSquirrel.Entities
 
 		public Vector2 Tip { get; private set; }
 
+		public LivingEntity Owner { get; private set; }
+
 		public void Update(float dt)
 		{
-			const int TIP_OFFSET_LENGTH = 14;
-
 			sprite.Position += velocity * dt;
-
-			float tipOffsetX = (float)Math.Cos(sprite.Rotation) * TIP_OFFSET_LENGTH;
-			float tipOffsetY = (float)Math.Sin(sprite.Rotation) * TIP_OFFSET_LENGTH;
-
-			Tip = sprite.Position + new Vector2(tipOffsetX, tipOffsetY);
+			Tip = sprite.Position + tipOffset;
 		}
 
 		public void Draw(SpriteBatch sb)

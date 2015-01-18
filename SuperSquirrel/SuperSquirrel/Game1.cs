@@ -90,13 +90,13 @@ namespace SuperSquirrel
 			planetWrapper = new PlanetWrapper(planets);
 			laserWrapper = new LaserWrapper(lasers);
 			planetHelper = new PlanetHelper(planets);
-			damageHelper = new DamageHelper(lasers, enemies);
+			damageHelper = new DamageHelper(lasers);
 			spawnHelper = new SpawnHelper(planets, enemies);
 
+			hud = new Hud();
 			camera = new Camera();
 			player = new Player(planets[0], planetHelper, laserWrapper, camera);
 			enemyWrapper = new EnemyWrapper(player, enemies);
-			hud = new Hud();
 
 			inputManager = new InputManager(camera);
 			eventManager = new EventManager();

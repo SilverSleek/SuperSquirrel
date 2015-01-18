@@ -121,12 +121,14 @@
     <Compile Include="Entities\Events\KeyboardEventData.cs" />
     <Compile Include="Entities\Events\LaserEventData.cs" />
     <Compile Include="Entities\Events\ListenerEventData.cs" />
+    <Compile Include="Entities\Events\LivingEntityEventData.cs" />
     <Compile Include="Entities\Events\MouseEventData.cs" />
     <Compile Include="Entities\Events\SimpleEvent.cs" />
     <Compile Include="Entities\Display\Hud.cs" />
     <Compile Include="Entities\Display\HeartDisplay.cs" />
     <Compile Include="Entities\Explosion.cs" />
     <Compile Include="Entities\Laser.cs" />
+    <Compile Include="Entities\LivingEntity.cs" />
     <Compile Include="Entities\Planets\Planet.cs" />
     <Compile Include="Entities\Controllers\PlanetRunningController.cs" />
     <Compile Include="Entities\Planets\PlanetSpawner.cs" />

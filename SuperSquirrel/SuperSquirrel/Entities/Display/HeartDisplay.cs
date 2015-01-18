@@ -2,10 +2,12 @@
 using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Common;
+using SuperSquirrel.Entities.Events;
+using SuperSquirrel.Interfaces;
 
 namespace SuperSquirrel.Entities.Display
 {
-	class HeartDisplay
+	class HeartDisplay : ISimpleEventListener
 	{
 		public const int CONTAINER_HEIGHT = 24;
 
@@ -18,11 +20,18 @@ namespace SuperSquirrel.Entities.Display
 
 		public HeartDisplay(int edgeOffset)
 		{
+			const int CONTAINERS = 5;
+
 			spritesheet = ContentLoader.LoadTexture("Hearts");
 			startPosition = new Vector2(edgeOffset, edgeOffset);
+			numContainers = CONTAINERS;
 
-			health = 20;
-			numContainers = 5;
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.HEALTH, this)));
+		}
+
+		public void EventResponse(SimpleEvent simpleEvent)
+		{
+			health = (int)simpleEvent.Data;
 		}
 
 		public void Update(float dt)
