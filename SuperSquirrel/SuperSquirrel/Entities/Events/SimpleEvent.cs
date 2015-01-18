@@ -11,6 +11,7 @@ namespace SuperSquirrel.Entities.Events
 		LIVING_ENTITY,
 		HEALTH,
 		POINTS,
+		TIME,
 		LASER,
 		EXIT
 	}

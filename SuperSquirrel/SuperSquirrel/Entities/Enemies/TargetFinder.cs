@@ -8,6 +8,11 @@ namespace SuperSquirrel.Entities.Enemies
 {
 	class TargetFinder : Enemy
 	{
+		private const int HEALTH = 10;
+		private const int POINT_VALUE = 25;
+		private const int TIME_VALUE = 10000;
+		private const int CIRCLE_RADIUS = 30;
+
 		private static SpriteFont debugFont;
 		private static Vector2 debugOffset;
 
@@ -32,10 +37,6 @@ namespace SuperSquirrel.Entities.Enemies
 			COOLDOWN
 		}
 
-		private const int HEALTH = 10;
-		private const int POINTS = 25;
-		private const int CIRCLE_RADIUS = 30;
-
 		private Vector2 targetPosition;
 		private Vector2 laserVelocity;
 
@@ -49,7 +50,7 @@ namespace SuperSquirrel.Entities.Enemies
 		private int shotCount;
 
 		public TargetFinder(Player player, Vector2 position) :
-			base(EnemyTypes.TARGET_FINDER, position, HEALTH, POINTS, CIRCLE_RADIUS)
+			base(EnemyTypes.TARGET_FINDER, position, HEALTH, POINT_VALUE, TIME_VALUE, CIRCLE_RADIUS)
 		{
 			this.player = player;
 

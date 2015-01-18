@@ -18,11 +18,11 @@ namespace SuperSquirrel.Entities.Display
 			timeDisplay = new TimeDisplay(EDGE_OFFSET);
 		}
 
-		public void Update(GameTime gameTime, float dt)
+		public void Update(float dt)
 		{
 			heartDisplay.Update(dt);
 			pointDisplay.Update(dt);
-			timeDisplay.Update(gameTime, dt);
+			timeDisplay.Update(dt);
 		}
 
 		public void Draw(SpriteBatch sb)

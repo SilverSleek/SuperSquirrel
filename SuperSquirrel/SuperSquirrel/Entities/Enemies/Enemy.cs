@@ -25,23 +25,19 @@ namespace SuperSquirrel.Entities.Enemies
 			nameMap.Add(EnemyTypes.TARGET_FINDER, "TargetFinder");
 		}
 
-		private int points;
+		private int pointValue;
+		private int timeValue;
 
-		public Enemy(EnemyTypes type, Vector2 position, int health, int points, int circleRadius) :
+		public Enemy(EnemyTypes type, Vector2 position, int health, int pointValue, int timeValue, int circleRadius) :
 			base(position, circleRadius, health)
 		{
-			this.points = points;
+			this.pointValue = pointValue;
+			this.timeValue = timeValue;
 
 			Sprite = new Sprite(ContentLoader.LoadTexture("Enemies/" + nameMap[type]), position, OriginLocations.CENTER);
-			Position = position;
-			BoundingCircle = new BoundingCircle(position, circleRadius);
 		}
 
 		protected Sprite Sprite { get; set; }
-		protected Vector2 Position { get; set; }
-		protected Vector2 Velocity { get; set; }
-
-		public BoundingCircle BoundingCircle { get; private set; }
 
 		public bool Destroy { get; private set; }
 
@@ -51,7 +47,8 @@ namespace SuperSquirrel.Entities.Enemies
 		{
 			Destroy = true;
 
-			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.POINTS, points));
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.POINTS, pointValue));
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.TIME, timeValue));
 		}
 
 		public override void Update(float dt)

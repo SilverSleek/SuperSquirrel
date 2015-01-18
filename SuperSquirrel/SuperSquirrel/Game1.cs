@@ -87,6 +87,8 @@ namespace SuperSquirrel
 			List<Enemy> enemies = new List<Enemy>();
 			List<Timer> timers = new List<Timer>();
 
+			Timer.Initialize(timers);
+
 			planetWrapper = new PlanetWrapper(planets);
 			laserWrapper = new LaserWrapper(lasers);
 			planetHelper = new PlanetHelper(planets);
@@ -103,8 +105,6 @@ namespace SuperSquirrel
 			timerManager = new TimerManager(timers);
 
 			//titleScreen = new TitleScreen();
-
-			Timer.Initialize(timers);
 
 			base.Initialize();
 		}
@@ -138,7 +138,7 @@ namespace SuperSquirrel
 			laserWrapper.Update(dt);
 			laserHelper.Update();
 			spawnHelper.Update();
-			hud.Update(gameTime, dt);
+			hud.Update(dt);
 
 			//titleScreen.Update(dt);
 		}
