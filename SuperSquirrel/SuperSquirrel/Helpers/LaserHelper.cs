@@ -2,18 +2,21 @@
 
 using SuperSquirrel.Entities;
 using SuperSquirrel.Entities.Events;
+using SuperSquirrel.Entities.Planets;
 using SuperSquirrel.Interfaces;
 
 namespace SuperSquirrel.Helpers
 {
-	class DamageHelper : ISimpleEventListener
+	class LaserHelper : ISimpleEventListener
 	{
 		private List<Laser> lasers;
+		private List<Planet> planets;
 		private List<LivingEntity> entities;
 
-		public DamageHelper(List<Laser> lasers)
+		public LaserHelper(List<Laser> lasers, List<Planet> planets)
 		{
 			this.lasers = lasers;
+			this.planets = planets;
 
 			entities = new List<LivingEntity>();
 
@@ -40,12 +43,27 @@ namespace SuperSquirrel.Helpers
 
 			foreach (Laser laser in lasers)
 			{
-				foreach (LivingEntity entity in entities)
+				foreach (Planet planet in planets)
 				{
-					if (laser.Owner != entity && entity.BoundingCircle.ContainsPoint(laser.Tip))
+					if (planet.BoundingCircle.ContainsPoint(laser.Tip))
 					{
 						laser.Destroy = true;
-						entity.ApplyDamage(LASER_DAMAGE);
+
+						break;
+					}
+				}
+
+				if (!laser.Destroy)
+				{
+					foreach (LivingEntity entity in entities)
+					{
+						if (laser.Owner != entity && entity.BoundingCircle.ContainsPoint(laser.Tip))
+						{
+							laser.Destroy = true;
+							entity.ApplyDamage(LASER_DAMAGE);
+
+							break;
+						}
 					}
 				}
 			}

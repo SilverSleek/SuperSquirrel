@@ -140,7 +140,7 @@
     <Compile Include="Entities\Title\CircularText.cs" />
     <Compile Include="Entities\Title\MenuPlanet.cs" />
     <Compile Include="Entities\Title\TitleScreen.cs" />
-    <Compile Include="Helpers\DamageHelper.cs" />
+    <Compile Include="Helpers\LaserHelper.cs" />
     <Compile Include="Helpers\GamestateHelper.cs" />
     <Compile Include="Helpers\PlanetHelper.cs" />
     <Compile Include="Helpers\SpawnHelper.cs" />

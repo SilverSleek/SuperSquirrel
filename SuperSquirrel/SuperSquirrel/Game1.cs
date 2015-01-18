@@ -60,7 +60,7 @@ namespace SuperSquirrel
 		private EnemyWrapper enemyWrapper;
 		
 		private PlanetHelper planetHelper;
-		private DamageHelper damageHelper;
+		private LaserHelper laserHelper;
 		private SpawnHelper spawnHelper;
 
 		private TitleScreen titleScreen;
@@ -90,7 +90,7 @@ namespace SuperSquirrel
 			planetWrapper = new PlanetWrapper(planets);
 			laserWrapper = new LaserWrapper(lasers);
 			planetHelper = new PlanetHelper(planets);
-			damageHelper = new DamageHelper(lasers);
+			laserHelper = new LaserHelper(lasers, planets);
 			spawnHelper = new SpawnHelper(planets, enemies);
 
 			hud = new Hud();
@@ -136,7 +136,7 @@ namespace SuperSquirrel
 			camera.Update(dt);
 			enemyWrapper.Update(dt);
 			laserWrapper.Update(dt);
-			damageHelper.Update();
+			laserHelper.Update();
 			spawnHelper.Update();
 			hud.Update(gameTime, dt);
 
