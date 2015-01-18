@@ -1,5 +1,5 @@
 # SuperSquirrel
-2D action shooter using gravitational effects in space. This game was started during a mini game jam with two friends where the keywords got a little out of hand. Without going into the details of how these words were chosen, here is the list of words this game was designed around.
+Super Squirrel is a 2D action shooter using gravitational effects in space. The title will probably be changed. This game was started during a mini game jam with two friends where the keywords got a little out of hand. Without going into the details of how these words were chosen, here is the list of words this game was designed around.
 
 - Rope physics
 - Guns
