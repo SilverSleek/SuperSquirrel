@@ -27,13 +27,6 @@ namespace SuperSquirrel
 		CENTER
 	}
 
-	public enum EntityListTypes
-	{
-		ENEMY = 0,
-		LASER = 1,
-		PLANET = 2
-	}
-
 	public enum Gamestates
 	{
 		SPLASH = 0,
