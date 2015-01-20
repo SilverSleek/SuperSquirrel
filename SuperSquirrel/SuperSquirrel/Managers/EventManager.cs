@@ -37,9 +37,12 @@ namespace SuperSquirrel.Managers
 			{
 				SimpleEvent simpleEvent = eventQueue.Dequeue();
 
-				foreach (ISimpleEventListener listener in listenerMap[simpleEvent.Type])
+				if (listenerMap.ContainsKey(simpleEvent.Type))
 				{
-					listener.EventResponse(simpleEvent);
+					foreach (ISimpleEventListener listener in listenerMap[simpleEvent.Type])
+					{
+						listener.EventResponse(simpleEvent);
+					}
 				}
 			}
 		}

@@ -6,15 +6,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Common;
 using SuperSquirrel.Entities;
-using SuperSquirrel.Entities.Display;
-using SuperSquirrel.Entities.Enemies;
 using SuperSquirrel.Entities.Events;
-using SuperSquirrel.Entities.Planets;
-using SuperSquirrel.Entities.Title;
 using SuperSquirrel.Helpers;
 using SuperSquirrel.Interfaces;
 using SuperSquirrel.Managers;
-using SuperSquirrel.Wrappers;
 
 namespace SuperSquirrel
 {
@@ -32,14 +27,18 @@ namespace SuperSquirrel
 		CENTER
 	}
 
+	public enum EntityListTypes
+	{
+		ENEMY = 0,
+		LASER = 1,
+		PLANET = 2
+	}
+
 	public enum Gamestates
 	{
 		SPLASH = 0,
 		TITLE = 1,
-		START = 2,
-		GAMEPLAY = 3,
-		PAUSED = 4,
-		END = 5
+		GAMEPLAY = 2
 	}
 
 	class Game1 : Game, ISimpleEventListener
@@ -47,23 +46,12 @@ namespace SuperSquirrel
 		private GraphicsDeviceManager graphics;
 		private SpriteBatch spriteBatch;
 
-		private Player player;
-		private Camera camera;
-		private Hud hud;
-
 		private InputManager inputManager;
 		private EventManager eventManager;
 		private TimerManager timerManager;
 
-		private PlanetWrapper planetWrapper;
-		private LaserWrapper laserWrapper;
-		private EnemyWrapper enemyWrapper;
-		
-		private PlanetHelper planetHelper;
-		private LaserHelper laserHelper;
-		private SpawnHelper spawnHelper;
-
-		private TitleScreen titleScreen;
+		private UpdateHelper updateHelper;
+		private DrawHelper drawHelper;
 
 		public Game1()
 		{
@@ -80,31 +68,21 @@ namespace SuperSquirrel
 
 		protected override void Initialize()
 		{
-			ContentLoader.Initialize(Content);
-
-			List<Planet> planets = new List<Planet>();
-			List<Laser> lasers = new List<Laser>();
-			List<Enemy> enemies = new List<Enemy>();
 			List<Timer> timers = new List<Timer>();
 
+			ContentLoader.Initialize(Content);
 			Timer.Initialize(timers);
 
-			planetWrapper = new PlanetWrapper(planets);
-			laserWrapper = new LaserWrapper(lasers);
-			planetHelper = new PlanetHelper(planets);
-			laserHelper = new LaserHelper(lasers, planets);
-			spawnHelper = new SpawnHelper(planets, enemies);
-
-			hud = new Hud();
-			camera = new Camera();
-			player = new Player(planets[0], planetHelper, laserWrapper, camera);
-			enemyWrapper = new EnemyWrapper(player, enemies);
-
-			inputManager = new InputManager(camera);
+			inputManager = new InputManager();
 			eventManager = new EventManager();
 			timerManager = new TimerManager(timers);
 
-			//titleScreen = new TitleScreen();
+			updateHelper = new UpdateHelper();
+			drawHelper = new DrawHelper();
+
+			GamestateHelper gamestateHelper = new GamestateHelper(updateHelper, drawHelper);
+
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GAMESTATE, Gamestates.GAMEPLAY));
 
 			base.Initialize();
 		}
@@ -131,34 +109,14 @@ namespace SuperSquirrel
 			eventManager.Update();
 			timerManager.Update(gameTime);
 
-			planetWrapper.Update(dt);
-			player.Update(dt);
-			camera.Update(dt);
-			enemyWrapper.Update(dt);
-			laserWrapper.Update(dt);
-			laserHelper.Update();
-			spawnHelper.Update();
-			hud.Update(dt);
-
-			//titleScreen.Update(dt);
+			updateHelper.Update(dt);
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
 			GraphicsDevice.Clear(Color.White);
 
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default,
-				RasterizerState.CullCounterClockwise, null, camera.Transform);
-
-			planetWrapper.Draw(spriteBatch);
-			laserWrapper.Draw(spriteBatch);
-			enemyWrapper.Draw(spriteBatch);
-			player.Draw(spriteBatch);
-			hud.Draw(spriteBatch);
-
-			//titleScreen.Draw(spriteBatch);
-
-			spriteBatch.End();
+			drawHelper.Draw(spriteBatch);
 		}
 	}
 }

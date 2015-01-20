@@ -15,7 +15,7 @@ using SuperSquirrel.Wrappers;
 
 namespace SuperSquirrel.Entities
 {
-	class Player : LivingEntity, ISimpleEventListener
+	class Player : LivingEntity, ISimpleUpdateable, ISimpleDrawable, ISimpleEventListener
 	{
 		private const int STARTING_HEALTH = 20;
 		private const int CIRCLE_RADIUS = 10;
@@ -25,24 +25,22 @@ namespace SuperSquirrel.Entities
 		private Planet landedPlanet;
 		private Planet mostRecentPlanet;
 		private PlanetHelper planetHelper;
-		private LaserWrapper laserWrapper;
-
 		private PlanetRunningController runningController;
 
 		private List<ProximityData> dataList;
 
-		public Player(Planet startingPlanet, PlanetHelper planetHelper, LaserWrapper laserWrapper, Camera camera) :
+		public Player(Planet startingPlanet, PlanetHelper planetHelper) :
 			base(Vector2.Zero, CIRCLE_RADIUS, STARTING_HEALTH)
 		{
 			const float ANGULAR_DECELERATION = MathHelper.Pi * 3;
 			const float ANGULAR_MAX_SPEED = MathHelper.Pi;
 
 			this.planetHelper = planetHelper;
-			this.laserWrapper = laserWrapper;
-			this.camera = camera;
 
 			landedPlanet = startingPlanet;
 			mostRecentPlanet = landedPlanet;
+
+			camera = Camera.Instance;
 			camera.Position = -startingPlanet.Center;
 			
 			sprite = new Sprite(ContentLoader.LoadTexture("Player"), Vector2.Zero, OriginLocations.CENTER);

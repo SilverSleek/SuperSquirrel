@@ -28,7 +28,6 @@ namespace SuperSquirrel.Entities.Display
 
 		private void TimeExpired()
 		{
-			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GAMESTATE, Gamestates.END));
 		}
 
 		public void EventResponse(SimpleEvent simpleEvent)

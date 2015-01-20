@@ -15,12 +15,6 @@ namespace SuperSquirrel.Managers
 		private KeyboardState newKS;
 		private MouseState oldMS;
 		private MouseState newMS;
-		private Camera camera;
-
-		public InputManager(Camera camera)
-		{
-			this.camera = camera;
-		}
 
 		public void Update()
 		{
@@ -51,8 +45,8 @@ namespace SuperSquirrel.Managers
 
 			Vector2 oldScreenPosition = new Vector2(oldMS.X, oldMS.Y);
 			Vector2 newScreenPosition = new Vector2(newMS.X, newMS.Y);
-			Vector2 oldWorldPosition = Vector2.Transform(oldScreenPosition, camera.InverseTransform);
-			Vector2 newWorldPosition = Vector2.Transform(newScreenPosition, camera.InverseTransform);
+			Vector2 oldWorldPosition = Vector2.Transform(oldScreenPosition, Camera.Instance.InverseTransform);
+			Vector2 newWorldPosition = Vector2.Transform(newScreenPosition, Camera.Instance.InverseTransform);
 
 			ButtonStates leftButtonState = GetButtonState(oldMS.LeftButton, newMS.LeftButton);
 			ButtonStates rightButtonState = GetButtonState(oldMS.RightButton, newMS.RightButton);

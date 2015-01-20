@@ -9,7 +9,7 @@ using SuperSquirrel.Interfaces;
 
 namespace SuperSquirrel.Wrappers
 {
-	class LaserWrapper : ISimpleEventListener
+	class LaserWrapper : Wrapper, ISimpleEventListener
 	{
 		public LaserWrapper(List<Laser> lasers)
 		{
@@ -27,7 +27,7 @@ namespace SuperSquirrel.Wrappers
 			Lasers.Add(new Laser(data.Position, data.Velocity, data.Rotation, data.Owner));
 		}
 
-		public void Update(float dt)
+		public override void Update(float dt)
 		{
 			for (int i = 0; i < Lasers.Count; i++)
 			{
@@ -44,7 +44,7 @@ namespace SuperSquirrel.Wrappers
 			}
 		}
 
-		public void Draw(SpriteBatch sb)
+		public override void Draw(SpriteBatch sb)
 		{
 			foreach (Laser laser in Lasers)
 			{

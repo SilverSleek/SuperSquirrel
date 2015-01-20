@@ -7,7 +7,7 @@ using SuperSquirrel.Entities.Planets;
 
 namespace SuperSquirrel.Wrappers
 {
-	class PlanetWrapper
+	class PlanetWrapper : Wrapper
 	{
 		private List<Planet> planets;
 
@@ -24,7 +24,7 @@ namespace SuperSquirrel.Wrappers
 			planets.Add(new Planet(new Vector2(300, -75), PlanetSizes.SMALL)); 
 		}
 
-		public void Update(float dt)
+		public override void Update(float dt)
 		{
 			for (int i = 0; i < planets.Count; i++)
 			{
@@ -32,7 +32,7 @@ namespace SuperSquirrel.Wrappers
 			}
 		}
 
-		public void Draw(SpriteBatch sb)
+		public override void Draw(SpriteBatch sb)
 		{
 			foreach (Planet Planet in planets)
 			{

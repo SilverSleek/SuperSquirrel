@@ -1,19 +1,37 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Common;
+using SuperSquirrel.Interfaces;
 
 namespace SuperSquirrel.Entities
 {
-	class Camera
+	class Camera : ISimpleUpdateable, ISimpleDrawable
 	{
+		public static Camera Instance { get; private set; }
+
+		static Camera()
+		{
+			Instance = new Camera();
+		}
+
 		private Vector2 screenCenter;
+		private Vector2 debugVerticalStart;
+		private Vector2 debugVerticalEnd;
+		private Vector2 debugHorizontalStart;
+		private Vector2 debugHorizontalEnd;
 		private Vector2 lerpBasePosition;
 
 		private Timer lerpTimer;
 
-		public Camera()
+		private Camera()
 		{
 			screenCenter = new Vector2(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT) / 2;
+			debugVerticalStart = new Vector2(Constants.SCREEN_WIDTH / 2, 0);
+			debugVerticalEnd = new Vector2(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT);
+			debugHorizontalStart = new Vector2(0, Constants.SCREEN_HEIGHT / 2);
+			debugHorizontalEnd = new Vector2(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT / 2);
+
 			Zoom = 1;
 			Transform = Matrix.Identity;
 			InverseTransform = Matrix.Identity;
@@ -63,6 +81,18 @@ namespace SuperSquirrel.Entities
 			Transform = Matrix.CreateTranslation(new Vector3(Position, 0)) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateScale(Zoom) *
 				Matrix.CreateTranslation(new Vector3(screenCenter, 0));
 			InverseTransform = Matrix.Invert(Transform);
+		}
+
+		public void Draw(SpriteBatch sb)
+		{
+			if (Constants.DEBUG)
+			{
+				sb.End();
+				sb.Begin();
+
+				DrawingFunctions.DrawLine(sb, debugVerticalStart, debugVerticalEnd, Color.LightGray);
+				DrawingFunctions.DrawLine(sb, debugHorizontalStart, debugHorizontalEnd, Color.LightGray);
+			}
 		}
 	}
 }

@@ -7,7 +7,7 @@ using SuperSquirrel.Interfaces;
 
 namespace SuperSquirrel.Helpers
 {
-	class LaserHelper : ISimpleEventListener
+	class LaserHelper : ISimpleUpdateable, ISimpleEventListener
 	{
 		private List<Laser> lasers;
 		private List<Planet> planets;
@@ -37,7 +37,7 @@ namespace SuperSquirrel.Helpers
 			}
 		}
 
-		public void Update()
+		public void Update(float dt)
 		{
 			const int LASER_DAMAGE = 1;
 

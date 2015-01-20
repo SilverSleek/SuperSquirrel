@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using SuperSquirrel.Interfaces;
+
 namespace SuperSquirrel.Entities.Display
 {
-	class Hud
+	class Hud : ISimpleUpdateable, ISimpleDrawable
 	{
 		private HeartDisplay heartDisplay;
 		private PointDisplay pointDisplay;

@@ -8,7 +8,7 @@ using SuperSquirrel.Entities.Enemies;
 
 namespace SuperSquirrel.Wrappers
 {
-	class EnemyWrapper
+	class EnemyWrapper : Wrapper
 	{
 		public EnemyWrapper(Player player, List<Enemy> enemies)
 		{
@@ -20,7 +20,7 @@ namespace SuperSquirrel.Wrappers
 
 		public List<Enemy> Enemies { get; private set; }
 
-		public void Update(float dt)
+		public override void Update(float dt)
 		{
 			for (int i = 0; i < Enemies.Count; i++)
 			{
@@ -37,7 +37,7 @@ namespace SuperSquirrel.Wrappers
 			}
 		}
 
-		public void Draw(SpriteBatch sb)
+		public override void Draw(SpriteBatch sb)
 		{
 			foreach (Enemy enemy in Enemies)
 			{

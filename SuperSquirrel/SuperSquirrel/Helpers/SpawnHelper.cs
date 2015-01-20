@@ -2,10 +2,11 @@
 
 using SuperSquirrel.Entities.Enemies;
 using SuperSquirrel.Entities.Planets;
+using SuperSquirrel.Interfaces;
 
 namespace SuperSquirrel.Helpers
 {
-	class SpawnHelper
+	class SpawnHelper : ISimpleUpdateable
 	{
 		private List<Planet> planets;
 		private List<Enemy> enemies;
@@ -16,7 +17,7 @@ namespace SuperSquirrel.Helpers
 			this.enemies = enemies;
 		}
 
-		public void Update()
+		public void Update(float dt)
 		{
 		}
 	}
