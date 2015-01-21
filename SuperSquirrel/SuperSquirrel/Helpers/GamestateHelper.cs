@@ -7,6 +7,7 @@ using SuperSquirrel.Entities.Display;
 using SuperSquirrel.Entities.Enemies;
 using SuperSquirrel.Entities.Events;
 using SuperSquirrel.Entities.Planets;
+using SuperSquirrel.Entities.Title;
 using SuperSquirrel.Interfaces;
 using SuperSquirrel.Wrappers;
 
@@ -27,6 +28,9 @@ namespace SuperSquirrel.Helpers
 
 		public void EventResponse(SimpleEvent simpleEvent)
 		{
+			List<ISimpleUpdateable> updateables = new List<ISimpleUpdateable>();
+			List<ISimpleDrawable> drawables = new List<ISimpleDrawable>();
+
 			switch ((Gamestates)simpleEvent.Data)
 			{
 				case Gamestates.SPLASH:
@@ -34,28 +38,32 @@ namespace SuperSquirrel.Helpers
 					break;
 
 				case Gamestates.TITLE:
-					CreateTitleEntities();
+					CreateTitleEntities(updateables, drawables);
 					break;
 
 				case Gamestates.GAMEPLAY:
-					CreateGameplayEntities();
+					CreateGameplayEntities(updateables, drawables);
 					break;
 			}
+
+			updateHelper.Updateables = updateables;
+			drawHelper.Drawables = drawables;
 		}
 
 		private void CreateSplashEntities()
 		{
 		}
 
-		private void CreateTitleEntities()
+		private void CreateTitleEntities(List<ISimpleUpdateable> updateables, List<ISimpleDrawable> drawables)
 		{
+			TitleScreen titleScreen = new TitleScreen();
+
+			updateables.Add(titleScreen);
+			drawables.Add(titleScreen);
 		}
 
-		private void CreateGameplayEntities()
+		private void CreateGameplayEntities(List<ISimpleUpdateable> updateables, List<ISimpleDrawable> drawables)
 		{
-			List<ISimpleUpdateable> updateables = new List<ISimpleUpdateable>();
-			List<ISimpleDrawable> drawables = new List<ISimpleDrawable>();
-
 			List<Laser> lasers = new List<Laser>();
 			List<Enemy> enemies = new List<Enemy>();
 			List<Planet> planets = new List<Planet>();
@@ -87,9 +95,6 @@ namespace SuperSquirrel.Helpers
 			drawables.Add(laserWrapper);
 			drawables.Add(Camera.Instance);
 			drawables.Add(hud);
-
-			updateHelper.Updateables = updateables;
-			drawHelper.Drawables = drawables;
 		}
 	}
 }

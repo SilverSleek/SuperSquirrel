@@ -4,10 +4,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Common;
+using SuperSquirrel.Interfaces;
 
 namespace SuperSquirrel.Entities.Title
 {
-	class TitleScreen
+	class TitleScreen : ISimpleUpdateable, ISimpleDrawable
 	{
 		private MenuPlanet[] menuPlanets;
 

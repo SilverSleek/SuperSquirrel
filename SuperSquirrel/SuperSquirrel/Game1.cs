@@ -75,7 +75,7 @@ namespace SuperSquirrel
 
 			GamestateHelper gamestateHelper = new GamestateHelper(updateHelper, drawHelper);
 
-			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GAMESTATE, Gamestates.GAMEPLAY));
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GAMESTATE, Gamestates.TITLE));
 
 			base.Initialize();
 		}
