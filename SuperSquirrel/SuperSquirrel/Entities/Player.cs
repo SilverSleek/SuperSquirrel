@@ -221,7 +221,7 @@ namespace SuperSquirrel.Entities
 
 		private void CheckPlanetLanding(List<ProximityData> dataList)
 		{
-			Planet planet = planetHelper.GetNearestPlanet(dataList);
+			Planet planet = planetHelper.GetClosestPlanet(dataList);
 
 			// this prevents an immediate collision with the planet you just jumped off
 			if (planet == mostRecentPlanet)

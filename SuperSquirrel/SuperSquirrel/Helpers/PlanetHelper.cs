@@ -36,31 +36,22 @@ namespace SuperSquirrel.Helpers
 			return dataList;
 		}
 
-		public Planet GetNearestPlanet(List<ProximityData> dataList)
+		public Planet GetClosestPlanet(List<ProximityData> dataList)
 		{
-			List<ProximityData> nearestList = new List<ProximityData>();
+			Planet closestPlanet = null;
+
+			float closestSurfaceDistance = -1;
 
 			foreach (ProximityData data in dataList)
 			{
-				if (data.SurfaceDistance < Planet.CAMERA_LERP_RANGE)
+				if (closestSurfaceDistance == -1 || data.SurfaceDistance < closestSurfaceDistance)
 				{
-					nearestList.Add(data);
+					closestSurfaceDistance = data.SurfaceDistance;
+					closestPlanet = data.Planet;
 				}
 			}
 
-			nearestList.Sort(new Comparison<ProximityData>(CompareData));
-
-			return nearestList[0].Planet;
-		}
-
-		private int CompareData(ProximityData data1, ProximityData data2)
-		{
-			if (data1.SurfaceDistance < data2.SurfaceDistance)
-			{
-				return -1;
-			}
-
-			return data2.SurfaceDistance < data1.SurfaceDistance ? 1 : 0;
+			return closestPlanet;
 		}
 
 		public Vector2 CalculateGravity(Vector2 playerPosition, int playerMass, List<ProximityData> dataList)
