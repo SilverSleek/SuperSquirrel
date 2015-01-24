@@ -15,9 +15,9 @@ namespace SuperSquirrel.Managers
 			this.timers = timers;
 		}
 
-		public void Update(GameTime gameTime)
+		public void Update(float dt)
 		{
-			int milliseconds = gameTime.ElapsedGameTime.Milliseconds;
+			int milliseconds = (int)(dt * 1000);
 
 			for (int i = 0; i < timers.Count; i++)
 			{
