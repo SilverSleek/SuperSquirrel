@@ -46,6 +46,8 @@ namespace SuperSquirrel
 		private UpdateHelper updateHelper;
 		private DrawHelper drawHelper;
 
+		private RopeTester ropeTester;
+
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -77,6 +79,8 @@ namespace SuperSquirrel
 
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GAMESTATE, Gamestates.TITLE));
 
+			ropeTester = new RopeTester();
+
 			base.Initialize();
 		}
 
@@ -103,6 +107,8 @@ namespace SuperSquirrel
 			timerManager.Update(gameTime);
 
 			updateHelper.Update(dt);
+
+			ropeTester.Update(dt);
 		}
 
 		protected override void Draw(GameTime gameTime)
@@ -110,6 +116,10 @@ namespace SuperSquirrel
 			GraphicsDevice.Clear(Color.White);
 
 			drawHelper.Draw(spriteBatch);
+
+			spriteBatch.Begin();
+			ropeTester.Draw(spriteBatch);
+			spriteBatch.End();
 		}
 	}
 }
