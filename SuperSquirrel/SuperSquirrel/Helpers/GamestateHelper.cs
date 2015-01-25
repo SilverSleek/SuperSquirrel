@@ -75,6 +75,7 @@ namespace SuperSquirrel.Helpers
 			PlanetHelper planetHelper = new PlanetHelper(planets);
 
 			Hud hud = new Hud();
+			Stars stars = new Stars();
 			Player player = new Player(planets[0], planetHelper);
 			
 			LaserWrapper laserWrapper = new LaserWrapper(lasers);
@@ -91,7 +92,9 @@ namespace SuperSquirrel.Helpers
 			updateables.Add(laserHelper);
 			updateables.Add(spawnHelper);
 			updateables.Add(hud);
+			updateables.Add(stars);
 
+			drawables.Add(stars);
 			drawables.Add(planetWrapper);
 			drawables.Add(enemyWrapper);
 			drawables.Add(player);

@@ -8,11 +8,17 @@ namespace SuperSquirrel.Entities
 		private Texture2D texture;
 		private Vector2 origin;
 
-		public Sprite(Texture2D texture, Vector2 position, OriginLocations originLocation)
+		public Sprite(Texture2D texture, Vector2 position, OriginLocations originLocation) :
+			this(texture, position, originLocation, Color.White)
+		{
+		}
+
+		public Sprite(Texture2D texture, Vector2 position, OriginLocations originLocation, Color color)
 		{
 			this.texture = texture;
 
 			Position = position;
+			Color = color;
 
 			// TOP_LEFT just sets the origin to Vector.Zero
 			switch (originLocation)
@@ -28,12 +34,13 @@ namespace SuperSquirrel.Entities
 		}
 
 		public Vector2 Position { get; set; }
+		public Color Color { get; set; }
 
 		public float Rotation { get; set; }
 
 		public void Draw(SpriteBatch sb)
 		{
-			sb.Draw(texture, Position, null, Color.White, Rotation, origin, 1, SpriteEffects.None, 0);
+			sb.Draw(texture, Position, null, Color, Rotation, origin, 1, SpriteEffects.None, 0);
 		}
 	}
 }
