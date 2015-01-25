@@ -39,7 +39,7 @@ namespace SuperSquirrel.Entities
 			Rope.Update(dt);
 
 			sprite.Position = Position;
-			sprite.Rotation = Rope.CalculateEndRotation() - MathHelper.PiOver2;
+			sprite.Rotation = Rope.CalculateEndRotation() + MathHelper.PiOver2;
 		}
 
 		public void Draw(SpriteBatch sb)
