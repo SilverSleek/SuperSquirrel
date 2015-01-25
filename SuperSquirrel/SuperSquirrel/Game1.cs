@@ -24,7 +24,8 @@ namespace SuperSquirrel
 	public enum OriginLocations
 	{
 		TOP_LEFT,
-		CENTER
+		CENTER,
+		BOTTOM_CENTER
 	}
 
 	public enum Gamestates
@@ -45,8 +46,6 @@ namespace SuperSquirrel
 
 		private UpdateHelper updateHelper;
 		private DrawHelper drawHelper;
-
-		private RopeTester ropeTester;
 
 		public Game1()
 		{
@@ -77,9 +76,7 @@ namespace SuperSquirrel
 
 			GamestateHelper gamestateHelper = new GamestateHelper(updateHelper, drawHelper);
 
-			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GAMESTATE, Gamestates.TITLE));
-
-			ropeTester = new RopeTester();
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GAMESTATE, Gamestates.GAMEPLAY));
 
 			base.Initialize();
 		}
@@ -100,15 +97,15 @@ namespace SuperSquirrel
 
 		protected override void Update(GameTime gameTime)
 		{
-			float dt = (float)gameTime.ElapsedGameTime.Milliseconds / 1000;
+			const int TIME_FACTOR = 1;
+
+			float dt = (float)gameTime.ElapsedGameTime.Milliseconds / 1000 / TIME_FACTOR;
 
 			inputManager.Update();
 			eventManager.Update();
-			timerManager.Update(gameTime);
+			timerManager.Update(dt);
 
 			updateHelper.Update(dt);
-
-			ropeTester.Update(dt);
 		}
 
 		protected override void Draw(GameTime gameTime)
@@ -116,10 +113,6 @@ namespace SuperSquirrel
 			GraphicsDevice.Clear(Color.White);
 
 			drawHelper.Draw(spriteBatch);
-
-			spriteBatch.Begin();
-			ropeTester.Draw(spriteBatch);
-			spriteBatch.End();
 		}
 	}
 }

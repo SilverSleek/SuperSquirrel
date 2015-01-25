@@ -4,52 +4,64 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Common;
+using SuperSquirrel.Helpers;
 
 namespace SuperSquirrel.Entities
 {
 	class Rope
 	{
-		private Mass[] masses;
-		private Spring[] springs;
+		private const int DEFAULT_MASS = 1;
 
-		public Rope(Vector2 start, Vector2 end)
+		public const int DEFAULT_SEGMENT_LENGTH = 25;
+
+		private static PlanetHelper planetHelper;
+
+		public static void Initialize(PlanetHelper planetHelper)
 		{
-			const int DEFAULT_SEGMENT_LENGTH = 25;
-			const int DEFAULT_MASS = 1;
-
-			float distance = Vector2.Distance(start, end);
-			int numMasses = (int)(distance / DEFAULT_SEGMENT_LENGTH) + 1;
-			float segmentBaseLength = distance / numMasses;
-
-			Vector2 increment = Vector2.Normalize(end - start) * segmentBaseLength;
-
-			masses = new Mass[numMasses];
-			springs = new Spring[numMasses - 1];
-			
-			for (int i = 0; i < masses.Length; i++)
-			{
-				masses[i] = new Mass(DEFAULT_MASS, start + increment * i, Vector2.Zero);
-			}
-
-			for (int i = 0; i < springs.Length; i++)
-			{
-				springs[i] = new Spring(masses[i], masses[i + 1]);
-			}
-
-			Spring.SegmentBaseLength = segmentBaseLength;
-
-			masses[0].Fixed = true;
+			Rope.planetHelper = planetHelper;
 		}
 
-		public void SetFirstPoint(Vector2 position)
+		private List<Mass> masses;
+		private List<Spring> springs;
+
+		public Rope(int length, Vector2 position, Mass headMass, Mass tailMass)
 		{
-			masses[0].Position = position;
+			int numMasses = (int)(length / DEFAULT_SEGMENT_LENGTH) + 1;
+			int numSprings = numMasses - 1;
+
+			masses = new List<Mass>();
+			springs = new List<Spring>();
+
+			masses.Add(headMass);
+
+			for (int i = 1; i < numMasses - 1; i++)
+			{
+				masses.Add(new Mass(DEFAULT_MASS, position, Vector2.Zero));
+			}
+
+			masses.Add(tailMass);
+
+			for (int i = 0; i < numSprings; i++)
+			{
+				springs.Add(new Spring(masses[i], masses[i + 1]));
+			}
+
+			Spring.SegmentLength = length / numSprings;
+		}
+
+		public float CalculateEndRotation()
+		{
+			// this assumes the rope has at least two points, but it wouldn't really be a rope without at least two points anyway
+			Mass mass1 = masses[masses.Count - 1];
+			Mass mass2 = masses[masses.Count - 2];
+
+			return Functions.ComputeAngle(mass2.Position, mass1.Position);
 		}
 
 		public void Update(float dt)
 		{
 			const int ITERATIONS = 8;
-			const float MASS_VELOCITY_FACTOR = 0.01f;
+			const float DAMPING = 0.01f;
 
 			for (int i = 0; i < ITERATIONS; i++)
 			{
@@ -62,8 +74,8 @@ namespace SuperSquirrel.Entities
 				{
 					if (!mass.Fixed)
 					{
-						mass.ApplyForce(-mass.Velocity * MASS_VELOCITY_FACTOR);
-						mass.Position += mass.Velocity;
+						mass.ApplyForce(-mass.Velocity * DAMPING);
+						mass.Position += mass.Velocity * dt;
 					}
 				}
 			}
@@ -71,7 +83,7 @@ namespace SuperSquirrel.Entities
 
 		public void Draw(SpriteBatch sb)
 		{
-			for (int i = 0; i < masses.Length - 1; i++)
+			for (int i = 0; i < masses.Count - 1; i++)
 			{
 				DrawingFunctions.DrawLine(sb, masses[i].Position, masses[i + 1].Position, Color.Black);
 			}
@@ -79,7 +91,7 @@ namespace SuperSquirrel.Entities
 
 		private class Spring
 		{
-			public static float SegmentBaseLength { get; set; }
+			public static float SegmentLength { get; set; }
 
 			private Mass mass1;
 			private Mass mass2;
@@ -93,7 +105,7 @@ namespace SuperSquirrel.Entities
 
 			public void Update(float dt)
 			{
-				const float K = 0.025f;
+				const float K = 0.5f;
 				const float FRICTION = 0.075f;
 
 				Vector2 force = Vector2.Zero;
@@ -103,8 +115,8 @@ namespace SuperSquirrel.Entities
 
 				if (magnitude != 0)
 				{
-					force -= (difference / magnitude) * (magnitude - SegmentBaseLength) * K;
-					force -= (mass1.Velocity - mass2.Velocity) * FRICTION;
+					force -= (difference / magnitude) * (magnitude - SegmentLength) * K;
+					force -= (mass1.Velocity - mass2.Velocity) * FRICTION * dt;
 
 					if (!mass1.Fixed)
 					{

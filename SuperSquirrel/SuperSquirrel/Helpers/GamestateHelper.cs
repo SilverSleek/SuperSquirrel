@@ -80,6 +80,8 @@ namespace SuperSquirrel.Helpers
 			EnemyWrapper enemyWrapper = new EnemyWrapper(player, enemies);
 			PlanetWrapper planetWrapper = new PlanetWrapper(planets);
 
+			Rope.Initialize(planetHelper);
+
 			updateables.Add(planetWrapper);
 			updateables.Add(player);
 			updateables.Add(Camera.Instance);

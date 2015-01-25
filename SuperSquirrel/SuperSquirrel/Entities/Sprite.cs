@@ -13,7 +13,18 @@ namespace SuperSquirrel.Entities
 			this.texture = texture;
 
 			Position = position;
-			origin = originLocation == OriginLocations.TOP_LEFT ? Vector2.Zero : new Vector2(texture.Width, texture.Height) / 2;
+
+			// TOP_LEFT just sets the origin to Vector.Zero
+			switch (originLocation)
+			{
+				case OriginLocations.CENTER:
+					origin = new Vector2(texture.Width, texture.Height) / 2;
+					break;
+
+				case OriginLocations.BOTTOM_CENTER:
+					origin = new Vector2(texture.Width / 2, texture.Height);
+					break;
+			}
 		}
 
 		public Vector2 Position { get; set; }

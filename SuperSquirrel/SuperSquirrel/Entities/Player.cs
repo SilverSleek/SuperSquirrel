@@ -22,6 +22,8 @@ namespace SuperSquirrel.Entities
 
 		private Camera camera;
 		private Sprite sprite;
+		private Grapple grapple;
+		private Mass tetherMass;
 		private Planet landedPlanet;
 		private Planet mostRecentPlanet;
 		private PlanetHelper planetHelper;
@@ -44,6 +46,7 @@ namespace SuperSquirrel.Entities
 			camera.Position = -startingPlanet.Center;
 			
 			sprite = new Sprite(ContentLoader.LoadTexture("Player"), Vector2.Zero, OriginLocations.CENTER);
+			grapple = new Grapple();
 			runningController = new PlanetRunningController(startingPlanet, ANGULAR_DECELERATION, ANGULAR_MAX_SPEED);
 
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.KEYBOARD, this)));
@@ -143,16 +146,32 @@ namespace SuperSquirrel.Entities
 		private void HandleMouseData(MouseEventData data)
 		{
 			const int LASER_SPEED = 600;
+			const int GRAPPLE_SPEED = 100;
 
-			if (data.LeftButtonState == ButtonStates.PRESSED_THIS_FRAME)
+			bool leftButtonPressedThisFrame = data.LeftButtonState == ButtonStates.PRESSED_THIS_FRAME;
+			bool rightButtonPressedThisFrame = data.RightButtonState == ButtonStates.PRESSED_THIS_FRAME;
+
+			if (leftButtonPressedThisFrame || rightButtonPressedThisFrame)
 			{
 				float angle = Functions.ComputeAngle(Position, data.NewWorldPosition);
-				float speedX = (float)Math.Cos(angle) * LASER_SPEED;
-				float speedY = (float)Math.Sin(angle) * LASER_SPEED;
+				float x = (float)Math.Cos(angle);
+				float y = (float)Math.Sin(angle);
 
-				Vector2 laserVelocity = new Vector2(speedX, speedY);
+				Vector2 direction = new Vector2(x, y);
 
-				SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LASER, new LaserEventData(Position, laserVelocity, angle, this)));
+				if (leftButtonPressedThisFrame)
+				{
+					SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LASER, new LaserEventData(Position, direction * LASER_SPEED,
+						angle, this)));
+				}
+
+				if (rightButtonPressedThisFrame)
+				{
+					tetherMass = new Mass(1, Position, Vector2.Zero);
+					tetherMass.Fixed = true;
+
+					grapple.Launch(Position, direction * GRAPPLE_SPEED, angle, tetherMass);
+				}
 			}
 		}
 
@@ -199,7 +218,7 @@ namespace SuperSquirrel.Entities
 				// if the player lands on a planet in the previous function, this variable will be non-null here
 				if (landedPlanet == null)
 				{
-					Velocity += planetHelper.CalculateGravity(Position, MASS, dataList) * dt;
+					Velocity += planetHelper.CalculateGravity(Position, MASS) * dt;
 					Position += Velocity * dt;
 
 					Vector2 cameraTarget = -(Position - Velocity * CAMERA_DRIFT_FACTOR);
@@ -213,6 +232,13 @@ namespace SuperSquirrel.Entities
 						camera.Position = cameraTarget;
 					}
 				}
+			}
+
+			if (grapple.Active)
+			{
+				tetherMass.Position = Position;
+
+				grapple.Update(dt);
 			}
 
 			BoundingCircle.Center = Position;
@@ -256,6 +282,11 @@ namespace SuperSquirrel.Entities
 			const int INDICATOR_LENGTH = 50;
 
 			sprite.Draw(sb);
+
+			if (grapple.Active)
+			{
+				grapple.Draw(sb);
+			}
 
 			if (Constants.DEBUG && landedPlanet == null)
 			{

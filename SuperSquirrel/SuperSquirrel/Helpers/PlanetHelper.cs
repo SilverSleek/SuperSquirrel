@@ -54,18 +54,21 @@ namespace SuperSquirrel.Helpers
 			return closestPlanet;
 		}
 
-		public Vector2 CalculateGravity(Vector2 playerPosition, int playerMass, List<ProximityData> dataList)
+		public Vector2 CalculateGravity(Vector2 position, float mass)
 		{
 			const int GRAVITY_FACTOR = 45;
 
 			Vector2 gravity = Vector2.Zero;
 
-			foreach (ProximityData data in dataList)
+			foreach (Planet planet in planets)
 			{
 				// taken from http://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
-				float force = (data.Planet.Mass * playerMass) / (data.Distance * data.Distance);
+				float distance = Vector2.Distance(position, planet.Center);
+				float force = (planet.Mass * mass) / (distance * distance);
 
-				gravity += force * data.Direction;
+				Vector2 direction = Vector2.Normalize(planet.Center - position);
+
+				gravity += force * direction;
 			}
 
 			return gravity * GRAVITY_FACTOR;
