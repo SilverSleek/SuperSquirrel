@@ -9,6 +9,7 @@ using SuperSquirrel.Common;
 using SuperSquirrel.Entities.Controllers;
 using SuperSquirrel.Entities.Events;
 using SuperSquirrel.Entities.Planets;
+using SuperSquirrel.Entities.RopePhysics;
 using SuperSquirrel.Helpers;
 using SuperSquirrel.Interfaces;
 using SuperSquirrel.Wrappers;

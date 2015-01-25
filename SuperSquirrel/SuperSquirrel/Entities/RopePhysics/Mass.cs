@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace SuperSquirrel.Entities
+namespace SuperSquirrel.Entities.RopePhysics
 {
 	class Mass
 	{

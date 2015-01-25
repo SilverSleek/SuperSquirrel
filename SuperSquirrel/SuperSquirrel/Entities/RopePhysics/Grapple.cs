@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Common;
 
-namespace SuperSquirrel.Entities
+namespace SuperSquirrel.Entities.RopePhysics
 {
 	class Grapple : Mass
 	{

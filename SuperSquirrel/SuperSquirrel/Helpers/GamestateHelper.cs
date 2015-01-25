@@ -7,6 +7,7 @@ using SuperSquirrel.Entities.Display;
 using SuperSquirrel.Entities.Enemies;
 using SuperSquirrel.Entities.Events;
 using SuperSquirrel.Entities.Planets;
+using SuperSquirrel.Entities.RopePhysics;
 using SuperSquirrel.Entities.Title;
 using SuperSquirrel.Interfaces;
 using SuperSquirrel.Wrappers;
