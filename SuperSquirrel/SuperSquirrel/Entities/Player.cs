@@ -34,8 +34,9 @@ namespace SuperSquirrel.Entities
 		public Player(Planet startingPlanet, PlanetHelper planetHelper) :
 			base(Vector2.Zero, CIRCLE_RADIUS, STARTING_HEALTH)
 		{
-			const float ANGULAR_DECELERATION = MathHelper.Pi * 3;
-			const float ANGULAR_MAX_SPEED = MathHelper.Pi;
+			const float ACCELERATION = 2000;
+			const float DECELERATION = 1000;
+			const float MAX_SPEED = 300;
 
 			this.planetHelper = planetHelper;
 
@@ -47,7 +48,7 @@ namespace SuperSquirrel.Entities
 			
 			sprite = new Sprite(ContentLoader.LoadTexture("Player"), Vector2.Zero, OriginLocations.CENTER);
 			grapple = new Grapple();
-			runningController = new PlanetRunningController(startingPlanet, ANGULAR_DECELERATION, ANGULAR_MAX_SPEED);
+			runningController = new PlanetRunningController(ACCELERATION, DECELERATION, MAX_SPEED, startingPlanet);
 
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.KEYBOARD, this)));
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.MOUSE, this)));
@@ -85,14 +86,14 @@ namespace SuperSquirrel.Entities
 			{
 				if (key == Keys.W)
 				{
-					float angle = runningController.Angle;
-					float speedX = (float)Math.Cos(angle) * JUMP_SPEED;
-					float speedY = (float)Math.Sin(angle) * JUMP_SPEED;
+					Vector2 realVelocityVector = runningController.ComputeRealVelocity();
 
-					Velocity = new Vector2(speedX, speedY);
+					Vector2 jumpVector = Functions.ComputeDirection(runningController.Angle) * JUMP_SPEED;
+					jumpVector += runningController.ComputeRealVelocity();
+
+					Velocity = Vector2.Normalize(jumpVector) * JUMP_SPEED;
 					mostRecentPlanet = landedPlanet;
 					landedPlanet = null;
-					runningController.Planet = null;
 
 					camera.SetLerpPositions(camera.Position, Position);
 
@@ -103,8 +104,6 @@ namespace SuperSquirrel.Entities
 
 		private void UpdateAngularAcceleration(KeyboardEventData data)
 		{
-			const float ANGULAR_ACCELERATION = MathHelper.Pi * 8;
-
 			bool aDown = false;
 			bool dDown = false;
 
@@ -131,15 +130,15 @@ namespace SuperSquirrel.Entities
 
 			if (aDown && !dDown)
 			{
-				runningController.AngularAcceleration = -ANGULAR_ACCELERATION;
+				runningController.AccelerationValue = AccelerationValues.NEGATIVE;
 			}
 			else if (dDown && !aDown)
 			{
-				runningController.AngularAcceleration = ANGULAR_ACCELERATION;
+				runningController.AccelerationValue = AccelerationValues.POSITIVE;
 			}
 			else
 			{
-				runningController.AngularAcceleration = 0;
+				runningController.AccelerationValue = AccelerationValues.NONE;
 			}
 		}
 
@@ -261,11 +260,7 @@ namespace SuperSquirrel.Entities
 			{
 				landedPlanet = planet;
 
-				runningController.Planet = planet;
-				runningController.Angle = Functions.ComputeAngle(landedPlanet.Center, Position);
-				runningController.AngularVelocity = 0;
-				runningController.AngularAcceleration = 0;
-
+				runningController.SetLanding(landedPlanet, Position, Velocity);
 				camera.SetLerpPositions(camera.Position, CalculateLandedCameraTarget());
 			}
 		}

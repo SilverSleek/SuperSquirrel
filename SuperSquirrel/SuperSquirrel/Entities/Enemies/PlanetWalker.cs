@@ -17,11 +17,11 @@ namespace SuperSquirrel.Entities.Enemies
 		public PlanetWalker(Planet planet) :
 			base(EnemyTypes.PLANET_WALKER, Vector2.Zero, HEALTH, POINT_VALUE, TIME_VALUE, CIRCLE_RADIUS)
 		{
-			const float ANGULAR_ACCELERATION = 0.01f;
-			const float ANGULAR_MAX_SPEED = MathHelper.Pi / 8;
+			//const float ANGULAR_ACCELERATION = 0.01f;
+			//const float ANGULAR_MAX_SPEED = MathHelper.Pi / 8;
 
-			controller = new PlanetRunningController(planet, 0, ANGULAR_MAX_SPEED);
-			controller.AngularAcceleration = ANGULAR_ACCELERATION;
+			//controller = new PlanetRunningController(planet, 0, ANGULAR_MAX_SPEED);
+			//controller.AngularAcceleration = ANGULAR_ACCELERATION;
 		}
 
 		protected override void AI(float dt)
