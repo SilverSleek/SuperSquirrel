@@ -20,35 +20,41 @@ namespace SuperSquirrel.Entities
 	{
 		private const int STARTING_HEALTH = 20;
 		private const int CIRCLE_RADIUS = 10;
+		private const int MASS = 10;
 
-		private Camera camera;
+		private enum MovementStates
+		{
+			PLANET,
+			DRIFT,
+			GRAPPLE
+		}
+
 		private Sprite sprite;
 		private Grapple grapple;
 		private Mass tetherMass;
 		private Planet landedPlanet;
-		private Planet mostRecentPlanet;
+		private Planet lastPlanet;
 		private PlanetHelper planetHelper;
+		private MovementStates movementState;
 		private PlanetRunningController runningController;
-
-		private List<ProximityData> dataList;
 
 		public Player(Planet startingPlanet, PlanetHelper planetHelper) :
 			base(Vector2.Zero, CIRCLE_RADIUS, STARTING_HEALTH)
 		{
-			const float ACCELERATION = 2000;
-			const float DECELERATION = 1000;
-			const float MAX_SPEED = 300;
+			const float ACCELERATION = 4000;
+			const float DECELERATION = 2000;
+			const float MAX_SPEED = 600;
 
 			this.planetHelper = planetHelper;
 
 			landedPlanet = startingPlanet;
-			mostRecentPlanet = landedPlanet;
+			lastPlanet = landedPlanet;
 
-			camera = Camera.Instance;
-			camera.Position = -startingPlanet.Center;
+			Camera.Instance.Position = -startingPlanet.Center;
 			
 			sprite = new Sprite(ContentLoader.LoadTexture("Player"), Vector2.Zero, OriginLocations.CENTER);
-			grapple = new Grapple();
+			grapple = new Grapple(planetHelper);
+			movementState = MovementStates.PLANET;
 			runningController = new PlanetRunningController(ACCELERATION, DECELERATION, MAX_SPEED, startingPlanet);
 
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.KEYBOARD, this)));
@@ -72,38 +78,14 @@ namespace SuperSquirrel.Entities
 
 		private void HandleKeyboardData(KeyboardEventData data)
 		{
-			if (landedPlanet != null)
+			if (movementState == MovementStates.PLANET)
 			{
-				HandlePlanetJumping(data);
-				UpdateAngularAcceleration(data);
+				HandleRunning(data);
+				HandleJumping(data);
 			}
 		}
 
-		private void HandlePlanetJumping(KeyboardEventData data)
-		{
-			const float JUMP_SPEED = 300;
-
-			foreach (Keys key in data.KeysPressedThisFrame)
-			{
-				if (key == Keys.W)
-				{
-					Vector2 realVelocityVector = runningController.ComputeRealVelocity();
-
-					Vector2 jumpVector = Functions.ComputeDirection(runningController.Angle) * JUMP_SPEED;
-					jumpVector += runningController.ComputeRealVelocity();
-
-					Velocity = Vector2.Normalize(jumpVector) * JUMP_SPEED;
-					mostRecentPlanet = landedPlanet;
-					landedPlanet = null;
-
-					camera.SetLerpPositions(camera.Position, Position);
-
-					break;
-				}
-			}
-		}
-
-		private void UpdateAngularAcceleration(KeyboardEventData data)
+		private void HandleRunning(KeyboardEventData data)
 		{
 			bool aDown = false;
 			bool dDown = false;
@@ -143,10 +125,33 @@ namespace SuperSquirrel.Entities
 			}
 		}
 
+		private void HandleJumping(KeyboardEventData data)
+		{
+			const float JUMP_SPEED = 600;
+
+			foreach (Keys key in data.KeysPressedThisFrame)
+			{
+				if (key == Keys.W)
+				{
+					Vector2 jumpVector = Functions.ComputeDirection(runningController.Angle) * JUMP_SPEED;
+					jumpVector += runningController.ComputeRealVelocity();
+
+					Velocity = Vector2.Normalize(jumpVector) * JUMP_SPEED;
+					lastPlanet = landedPlanet;
+					landedPlanet = null;
+					movementState = MovementStates.DRIFT;
+
+					Camera.Instance.SetLerpPositions(Camera.Instance.Position, Position);
+
+					break;
+				}
+			}
+		}
+
 		private void HandleMouseData(MouseEventData data)
 		{
 			const int LASER_SPEED = 600;
-			const int GRAPPLE_SPEED = 100;
+			const int GRAPPLE_SPEED = 150;
 
 			bool leftButtonPressedThisFrame = data.LeftButtonState == ButtonStates.PRESSED_THIS_FRAME;
 			bool rightButtonPressedThisFrame = data.RightButtonState == ButtonStates.PRESSED_THIS_FRAME;
@@ -154,10 +159,8 @@ namespace SuperSquirrel.Entities
 			if (leftButtonPressedThisFrame || rightButtonPressedThisFrame)
 			{
 				float angle = Functions.ComputeAngle(Position, data.NewWorldPosition);
-				float x = (float)Math.Cos(angle);
-				float y = (float)Math.Sin(angle);
 
-				Vector2 direction = new Vector2(x, y);
+				Vector2 direction = Functions.ComputeDirection(angle);
 
 				if (leftButtonPressedThisFrame)
 				{
@@ -167,8 +170,14 @@ namespace SuperSquirrel.Entities
 
 				if (rightButtonPressedThisFrame)
 				{
-					tetherMass = new Mass(1, Position, Vector2.Zero);
-					tetherMass.Fixed = true;
+					tetherMass = new Mass(MASS, Position, Vector2.Zero);
+					tetherMass.Fixed = movementState == MovementStates.PLANET;
+
+					if (movementState == MovementStates.DRIFT)
+					{
+						movementState = MovementStates.GRAPPLE;
+						lastPlanet = null;
+					}
 
 					grapple.Launch(Position, direction * GRAPPLE_SPEED, angle, tetherMass);
 				}
@@ -188,85 +197,114 @@ namespace SuperSquirrel.Entities
 
 		public override void Update(float dt)
 		{
-			const int MASS = 1;
-			const float CAMERA_DRIFT_FACTOR = 0.5f;
-
-			if (landedPlanet != null)
-			{
-				runningController.Update(dt);
-
-				Position = runningController.Position;
-				sprite.Rotation = runningController.Angle;
-
-				Vector2 cameraTarget = CalculateLandedCameraTarget();
-
-				if (camera.Lerping)
-				{
-					camera.LerpTargetPosition = cameraTarget;
-				}
-				else
-				{
-					camera.Position = cameraTarget;
-				}
-			}
-			else
-			{
-				dataList = planetHelper.GetProximityData(Position);
-
-				CheckPlanetLanding(dataList);
-
-				// if the player lands on a planet in the previous function, this variable will be non-null here
-				if (landedPlanet == null)
-				{
-					Velocity += planetHelper.CalculateGravity(Position, MASS) * dt;
-					Position += Velocity * dt;
-
-					Vector2 cameraTarget = -(Position - Velocity * CAMERA_DRIFT_FACTOR);
-
-					if (camera.Lerping)
-					{
-						camera.LerpTargetPosition = cameraTarget;
-					}
-					else
-					{
-						camera.Position = cameraTarget;
-					}
-				}
-			}
-
 			if (grapple.Active)
 			{
-				tetherMass.Position = Position;
-
 				grapple.Update(dt);
+			}
+
+			switch (movementState)
+			{
+				case MovementStates.PLANET:
+					UpdatePlanetMovement(dt);
+					break;
+
+				case MovementStates.DRIFT:
+					UpdateDriftMovement(dt);
+					break;
+
+				case MovementStates.GRAPPLE:
+					UpdateGrappleMovement(dt);
+					break;
 			}
 
 			BoundingCircle.Center = Position;
 			sprite.Position = Position;
 		}
 
-		private void CheckPlanetLanding(List<ProximityData> dataList)
+		private void UpdatePlanetMovement(float dt)
 		{
-			Planet planet = planetHelper.GetClosestPlanet(dataList);
+			runningController.Update(dt);
+			Position = runningController.Position;
+			sprite.Rotation = runningController.Angle;
 
-			// this prevents an immediate collision with the planet you just jumped off
-			if (planet == mostRecentPlanet)
+			if (grapple.Active)
 			{
-				if (!BoundingCircle.Intersects(mostRecentPlanet.BoundingCircle))
-				{
-					mostRecentPlanet = null;
-				}
+				tetherMass.Position = Position;
 			}
-			else if (BoundingCircle.Intersects(planet.BoundingCircle))
-			{
-				landedPlanet = planet;
 
-				runningController.SetLanding(landedPlanet, Position, Velocity);
-				camera.SetLerpPositions(camera.Position, CalculateLandedCameraTarget());
+			Camera camera = Camera.Instance;
+			Vector2 cameraTarget = CalculateCameraTarget();
+
+			if (camera.Lerping)
+			{
+				camera.LerpTargetPosition = cameraTarget;
+			}
+			else
+			{
+				camera.Position = cameraTarget;
 			}
 		}
 
-		private Vector2 CalculateLandedCameraTarget()
+		private void UpdateDriftMovement(float dt)
+		{
+			CheckLanding();
+
+			// the movement state can be changed in the previous function
+			if (movementState == MovementStates.DRIFT)
+			{
+				Velocity += planetHelper.CalculateGravity(Position, MASS) * dt;
+				Position += Velocity * dt;
+
+				UpdateCamera();
+			}
+		}
+
+		private void UpdateGrappleMovement(float dt)
+		{
+			Position = tetherMass.Position;
+
+			CheckLanding();
+			UpdateCamera();
+		}
+
+		private void CheckLanding()
+		{
+			Planet planet = planetHelper.CheckPlanetCollision(BoundingCircle);
+
+			if (planet != null)
+			{
+				// This prevents an immediate collision with the planet you just jumped off.
+				if (planet != lastPlanet && BoundingCircle.Intersects(planet.BoundingCircle))
+				{
+					landedPlanet = planet;
+					movementState = MovementStates.PLANET;
+					grapple.Retract();
+
+					runningController.SetLanding(landedPlanet, Position, Velocity);
+					Camera.Instance.SetLerpPositions(Camera.Instance.Position, CalculateCameraTarget());
+				}
+			}
+			else
+			{
+				lastPlanet = null;
+			}
+		}
+
+		public void UpdateCamera()
+		{
+			Camera camera = Camera.Instance;
+
+			if (camera.Lerping)
+			{
+				camera.LerpTargetPosition = -Position;
+			}
+			else
+			{
+				camera.Position = -Position;
+			}
+		}
+
+		private Vector2 CalculateCameraTarget()
 		{
 			Vector2 direction = Vector2.Normalize(landedPlanet.Center - Position);
 
@@ -275,21 +313,11 @@ namespace SuperSquirrel.Entities
 
 		public override void Draw(SpriteBatch sb)
 		{
-			const int INDICATOR_LENGTH = 50;
-
 			sprite.Draw(sb);
 
 			if (grapple.Active)
 			{
 				grapple.Draw(sb);
-			}
-
-			if (Constants.DEBUG && landedPlanet == null)
-			{
-				for (int i = 0; i < dataList.Count; i++)
-				{
-					DrawingFunctions.DrawLine(sb, Position, Position + dataList[i].Direction * INDICATOR_LENGTH, Color.LightGray);
-				}
 			}
 		}
 	}

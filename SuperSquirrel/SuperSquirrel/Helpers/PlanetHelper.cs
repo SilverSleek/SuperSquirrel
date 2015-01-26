@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 using SuperSquirrel.Common;
+using SuperSquirrel.Entities;
 using SuperSquirrel.Entities.Planets;
 
 namespace SuperSquirrel.Helpers
@@ -17,6 +18,7 @@ namespace SuperSquirrel.Helpers
 			this.planets = planets;
 		}
 
+		/*
 		public List<ProximityData> GetProximityData(Vector2 playerPosition)
 		{
 			List<ProximityData> dataList = new List<ProximityData>();
@@ -53,10 +55,24 @@ namespace SuperSquirrel.Helpers
 
 			return closestPlanet;
 		}
+		*/
+
+		public Planet CheckPlanetCollision(BoundingCircle boundingCircle)
+		{
+			foreach (Planet planet in planets)
+			{
+				if (planet.BoundingCircle.Intersects(boundingCircle))
+				{
+					return planet;
+				}
+			}
+
+			return null;
+		}
 
 		public Vector2 CalculateGravity(Vector2 position, float mass)
 		{
-			const int GRAVITY_FACTOR = 45;
+			const int GRAVITY_FACTOR = 5;
 
 			Vector2 gravity = Vector2.Zero;
 
