@@ -39,7 +39,9 @@ namespace SuperSquirrel.Entities.Display
 		{
 			TimeSpan timeSpan = TimeSpan.FromMilliseconds(STARTING_TIME - countdownTimer.Delay);
 
-			text.Value = timeSpan.Hours + ":" + timeSpan.Minutes + ":" + timeSpan.Seconds;
+			string milliseconds = string.Format("{0:D3}", timeSpan.Milliseconds).Substring(0, 2);
+
+			text.Value = string.Format("{0:D2}:{1:D2}:{2:D2}:{3}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, milliseconds);
 		}
 
 		public void Draw(SpriteBatch sb)
