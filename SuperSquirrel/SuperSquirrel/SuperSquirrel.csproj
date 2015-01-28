@@ -115,6 +115,7 @@
     <Compile Include="Entities\Camera.cs" />
     <Compile Include="Entities\Display\PointDisplay.cs" />
     <Compile Include="Entities\Display\TimeDisplay.cs" />
+    <Compile Include="Entities\Display\TutorialIcons.cs" />
     <Compile Include="Entities\Enemies\Enemy.cs" />
     <Compile Include="Entities\Enemies\PlanetWalker.cs" />
     <Compile Include="Entities\Enemies\TargetFinder.cs" />

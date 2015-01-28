@@ -6,16 +6,28 @@ namespace SuperSquirrel.Entities
 	class Sprite
 	{
 		private Texture2D texture;
+		private Rectangle? sourceRect;
 		private Vector2 origin;
 
 		public Sprite(Texture2D texture, Vector2 position, OriginLocations originLocation) :
-			this(texture, position, originLocation, Color.White)
+			this(texture, null, position, originLocation, Color.White)
 		{
 		}
 
-		public Sprite(Texture2D texture, Vector2 position, OriginLocations originLocation, Color color)
+		public Sprite(Texture2D texture, Vector2 position, OriginLocations originLocation, Color color) :
+			this(texture, null, position, originLocation, color)
+		{
+		}
+
+		public Sprite(Texture2D texture, Rectangle? sourceRect, Vector2 position, OriginLocations originLocation) :
+			this(texture, sourceRect, position, originLocation, Color.White)
+		{
+		}
+
+		public Sprite(Texture2D texture, Rectangle? sourceRect, Vector2 position, OriginLocations originLocation, Color color)
 		{
 			this.texture = texture;
+			this.sourceRect = sourceRect;
 
 			Position = position;
 			Color = color;
@@ -40,7 +52,7 @@ namespace SuperSquirrel.Entities
 
 		public void Draw(SpriteBatch sb)
 		{
-			sb.Draw(texture, Position, null, Color, Rotation, origin, 1, SpriteEffects.None, 0);
+			sb.Draw(texture, Position, sourceRect, Color, Rotation, origin, 1, SpriteEffects.None, 0);
 		}
 	}
 }
