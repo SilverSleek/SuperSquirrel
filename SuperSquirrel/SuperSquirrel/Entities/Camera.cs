@@ -78,7 +78,9 @@ namespace SuperSquirrel.Entities
 				Position = Vector2.Lerp(lerpBasePosition, LerpTargetPosition, lerpTimer.Progress);
 			}
 
-			Transform = Matrix.CreateTranslation(new Vector3(Position, 0)) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateScale(Zoom) *
+			Vector2 correctedPosition = new Vector2((int)Position.X, (int)Position.Y);
+
+			Transform = Matrix.CreateTranslation(new Vector3(correctedPosition, 0)) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateScale(Zoom) *
 				Matrix.CreateTranslation(new Vector3(screenCenter, 0));
 			InverseTransform = Matrix.Invert(Transform);
 		}
