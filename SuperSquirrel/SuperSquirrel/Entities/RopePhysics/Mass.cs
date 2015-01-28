@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 
+using SuperSquirrel.Common;
+
 namespace SuperSquirrel.Entities.RopePhysics
 {
 	class Mass
@@ -20,7 +22,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 		public void ApplyForce(Vector2 force)
 		{
-			Velocity += force / MassValue;
+			Velocity += force / MassValue / Constants.TIME_FACTOR;
 		}
 	}
 }

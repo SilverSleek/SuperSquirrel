@@ -85,7 +85,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 		{
 			for (int i = 0; i < masses.Count - 1; i++)
 			{
-				DrawingFunctions.DrawLine(sb, masses[i].Position, masses[i + 1].Position, Color.Blue);
+				DrawingFunctions.DrawLine(sb, masses[i].Position, masses[i + 1].Position, Color.Black);
 			}
 		}
 
@@ -112,10 +112,11 @@ namespace SuperSquirrel.Entities.RopePhysics
 				Vector2 difference = mass1.Position - mass2.Position;
 
 				float magnitude = difference.Length();
+				float dX = magnitude - SegmentLength;
 
-				if (magnitude != 0)
+				if (dX > 0)
 				{
-					force -= (difference / magnitude) * (magnitude - SegmentLength) * K;
+					force -= (difference / magnitude) * dX * K;
 					force -= (mass1.Velocity - mass2.Velocity) * FRICTION * dt;
 
 					if (!mass1.Fixed)

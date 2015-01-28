@@ -97,9 +97,7 @@ namespace SuperSquirrel
 
 		protected override void Update(GameTime gameTime)
 		{
-			const int TIME_FACTOR = 1;
-
-			float dt = (float)gameTime.ElapsedGameTime.Milliseconds / 1000 / TIME_FACTOR;
+			float dt = (float)gameTime.ElapsedGameTime.Milliseconds / 1000 / Constants.TIME_FACTOR;
 
 			inputManager.Update();
 			eventManager.Update();
@@ -110,7 +108,7 @@ namespace SuperSquirrel
 
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.Black);
+			GraphicsDevice.Clear(Color.White);
 
 			drawHelper.Draw(spriteBatch);
 		}
