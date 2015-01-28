@@ -97,10 +97,12 @@ namespace SuperSquirrel.Entities
 				switch (key)
 				{
 					case Keys.A:
+					case Keys.Left:
 						aDown = true;
 						break;
 
 					case Keys.D:
+					case Keys.Right:
 						dDown = true;
 						break;
 				}
@@ -131,7 +133,7 @@ namespace SuperSquirrel.Entities
 
 			foreach (Keys key in data.KeysPressedThisFrame)
 			{
-				if (key == Keys.W)
+				if (key == Keys.W || key == Keys.Up || key == Keys.Space)
 				{
 					Vector2 jumpVector = Functions.ComputeDirection(runningController.Angle) * JUMP_SPEED;
 					jumpVector += runningController.ComputeRealVelocity();
