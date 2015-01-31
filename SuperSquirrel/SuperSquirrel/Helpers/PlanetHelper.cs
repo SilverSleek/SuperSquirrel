@@ -18,45 +18,6 @@ namespace SuperSquirrel.Helpers
 			this.planets = planets;
 		}
 
-		/*
-		public List<ProximityData> GetProximityData(Vector2 playerPosition)
-		{
-			List<ProximityData> dataList = new List<ProximityData>();
-
-			foreach (Planet planet in planets)
-			{
-				Vector2 center = planet.Center;
-				Vector2 direction = Vector2.Normalize(center - playerPosition);
-
-				float angle = Functions.ComputeAngle(playerPosition, center);
-				float distance = Vector2.Distance(playerPosition, center);
-				float surfaceDistance = distance - planet.Radius;
-
-				dataList.Add(new ProximityData(planet, angle, distance, surfaceDistance, direction));
-			}
-
-			return dataList;
-		}
-
-		public Planet GetClosestPlanet(List<ProximityData> dataList)
-		{
-			Planet closestPlanet = null;
-
-			float closestSurfaceDistance = -1;
-
-			foreach (ProximityData data in dataList)
-			{
-				if (closestSurfaceDistance == -1 || data.SurfaceDistance < closestSurfaceDistance)
-				{
-					closestSurfaceDistance = data.SurfaceDistance;
-					closestPlanet = data.Planet;
-				}
-			}
-
-			return closestPlanet;
-		}
-		*/
-
 		public Planet CheckCollision(BoundingCircle boundingCircle)
 		{
 			foreach (Planet planet in planets)
