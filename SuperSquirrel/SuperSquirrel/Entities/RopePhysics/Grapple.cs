@@ -11,21 +11,17 @@ namespace SuperSquirrel.Entities.RopePhysics
 	{
 		private const int MASS = 5;
 		private const int ROPE_LENGTH = 250;
+		private const int HEAD_OFFSET = 24;
 
 		private Sprite sprite;
 		private PlanetHelper planetHelper;
-
-		private int headOffset;
 
 		public Grapple(PlanetHelper planetHelper) :
 			base(MASS, Vector2.Zero, Vector2.Zero)
 		{
 			this.planetHelper = planetHelper;
 
-			Texture2D texture = ContentLoader.LoadTexture("Grapple");
-
-			sprite = new Sprite(texture, Vector2.Zero, OriginLocations.BOTTOM_CENTER);
-			headOffset = texture.Height;
+			sprite = new Sprite(ContentLoader.LoadTexture("Grapple"), Vector2.Zero, OriginLocations.BOTTOM_CENTER);
 			Ready = true;
 		}
 
@@ -57,21 +53,24 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 			if (!Fixed)
 			{
-				sprite.Position = Position;
-				sprite.Rotation = Rope.CalculateEndRotation() + MathHelper.PiOver2;
+				float endRotation = Rope.CalculateEndRotation();
 
-				Vector2 headPosition = Position + Functions.ComputeDirection(sprite.Rotation) * headOffset;
+				sprite.Position = Position;
+				sprite.Rotation = endRotation + MathHelper.PiOver2;
+
+				Vector2 headOffset = Functions.ComputeDirection(endRotation) * HEAD_OFFSET;
+				Vector2 headPosition = Position + headOffset;
+
 				ProximityData data = planetHelper.CheckCollision(headPosition);
 
 				if (data != null)
 				{
 					Planet planet = data.Planet;
-					Vector2 correctionOffset = Position - planet.Center;
 
-					//Position = planet.Center + Vector2.Normalize(difference) * (planet.Radius + headOffset);
-					//sprite.Position = Position;
-					//sprite.Rotation = Functions.ComputeAngle(difference) - MathHelper.PiOver2;
-					//Fixed = true;
+					Position = planet.Center - data.Direction * planet.Radius - headOffset;
+					sprite.Position = Position;
+					sprite.Rotation = data.Angle + MathHelper.PiOver2;
+					Fixed = true;
 				}
 			}
 		}

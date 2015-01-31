@@ -40,9 +40,10 @@ namespace SuperSquirrel.Helpers
 					Vector2 center = planet.BoundingCircle.Center;
 					Vector2 direction = Vector2.Normalize(center - point);
 
+					float angle = Functions.ComputeAngle(point, center);
 					float distance = Vector2.Distance(center, point);
 
-					return new ProximityData(planet, distance, direction);
+					return new ProximityData(planet, angle, distance, direction);
 				}
 			}
 
