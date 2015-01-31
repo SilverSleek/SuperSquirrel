@@ -138,6 +138,7 @@
     <Compile Include="Entities\Planets\ProximityData.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\RopePhysics\Rope.cs" />
+    <Compile Include="Entities\RopePhysics\RopeTester.cs" />
     <Compile Include="Entities\Sprite.cs" />
     <Compile Include="Entities\Stars.cs" />
     <Compile Include="Entities\Text.cs" />

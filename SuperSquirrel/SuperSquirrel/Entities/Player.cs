@@ -21,6 +21,8 @@ namespace SuperSquirrel.Entities
 		private const int STARTING_HEALTH = 20;
 		private const int CIRCLE_RADIUS = 10;
 		private const int MASS = 10;
+		private const int LASER_SPEED = 600;
+		private const int GRAPPLE_SPEED = 150;
 
 		private enum MovementStates
 		{
@@ -152,9 +154,6 @@ namespace SuperSquirrel.Entities
 
 		private void HandleMouseData(MouseEventData data)
 		{
-			const int LASER_SPEED = 600;
-			const int GRAPPLE_SPEED = 150;
-
 			bool leftButtonPressedThisFrame = data.LeftButtonState == ButtonStates.PRESSED_THIS_FRAME;
 			bool rightButtonPressedThisFrame = data.RightButtonState == ButtonStates.PRESSED_THIS_FRAME;
 
@@ -271,7 +270,7 @@ namespace SuperSquirrel.Entities
 
 		private void CheckLanding()
 		{
-			Planet planet = planetHelper.CheckPlanetCollision(BoundingCircle);
+			Planet planet = planetHelper.CheckCollision(BoundingCircle);
 
 			if (planet != null)
 			{

@@ -57,13 +57,31 @@ namespace SuperSquirrel.Helpers
 		}
 		*/
 
-		public Planet CheckPlanetCollision(BoundingCircle boundingCircle)
+		public Planet CheckCollision(BoundingCircle boundingCircle)
 		{
 			foreach (Planet planet in planets)
 			{
 				if (planet.BoundingCircle.Intersects(boundingCircle))
 				{
 					return planet;
+				}
+			}
+
+			return null;
+		}
+
+		public ProximityData CheckCollision(Vector2 point)
+		{
+			foreach (Planet planet in planets)
+			{
+				if (planet.BoundingCircle.ContainsPoint(point))
+				{
+					Vector2 center = planet.BoundingCircle.Center;
+					Vector2 direction = Vector2.Normalize(point - center);
+
+					float distance = Vector2.Distance(center, point);
+
+					return new ProximityData(planet, distance, direction);
 				}
 			}
 

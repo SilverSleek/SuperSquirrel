@@ -16,7 +16,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 		public float MassValue { get; private set; }
 
 		public Vector2 Position { get; set; }
-		public Vector2 Velocity { get; protected set; }
+		public Vector2 Velocity { get; set; }
 
 		public bool Fixed { get; set; }
 

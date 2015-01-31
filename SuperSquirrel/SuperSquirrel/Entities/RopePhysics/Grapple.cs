@@ -10,6 +10,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 	class Grapple : Mass
 	{
 		private const int MASS = 25;
+		private const int ROPE_LENGTH = 250;
 
 		private Sprite sprite;
 		private PlanetHelper planetHelper;
@@ -39,8 +40,6 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 		public void Launch(Vector2 position, Vector2 velocity, float angle, Mass tailMass)
 		{
-			const int ROPE_LENGTH = 250;
-
 			sprite.Position = position;
 			sprite.Rotation = angle + MathHelper.PiOver2;
 
@@ -66,8 +65,9 @@ namespace SuperSquirrel.Entities.RopePhysics
 				sprite.Rotation = Rope.CalculateEndRotation() + MathHelper.PiOver2;
 				boundingCircle.Center = Position + Functions.ComputeDirection(sprite.Rotation) * headOffset;
 
-				Planet planet = planetHelper.CheckPlanetCollision(boundingCircle);
+				Planet planet = planetHelper.CheckCollision(boundingCircle);
 
+				/*
 				if (planet != null)
 				{
 					Vector2 difference = Position - planet.Center;
@@ -77,6 +77,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 					sprite.Rotation = Functions.ComputeAngle(difference) - MathHelper.PiOver2;
 					Fixed = true;
 				}
+				*/
 			}
 		}
 

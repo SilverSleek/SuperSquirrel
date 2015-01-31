@@ -77,6 +77,7 @@ namespace SuperSquirrel.Helpers
 			Hud hud = new Hud();
 			//Stars stars = new Stars();
 			Player player = new Player(planets[0], planetHelper);
+			//RopeTester ropeTester = new RopeTester();
 			TutorialIcons icons = new TutorialIcons(updateables, drawables);
 			
 			LaserWrapper laserWrapper = new LaserWrapper(lasers);
@@ -86,6 +87,7 @@ namespace SuperSquirrel.Helpers
 			Rope.Initialize(planetHelper);
 
 			updateables.Add(planetWrapper);
+			//updateables.Add(ropeTester);
 			updateables.Add(player);
 			updateables.Add(icons);
 			updateables.Add(Camera.Instance);
@@ -101,6 +103,7 @@ namespace SuperSquirrel.Helpers
 			drawables.Add(icons);
 			drawables.Add(enemyWrapper);
 			drawables.Add(player);
+			//drawables.Add(ropeTester);
 			drawables.Add(laserWrapper);
 			drawables.Add(Camera.Instance);
 			drawables.Add(hud);

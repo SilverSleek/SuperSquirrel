@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Common;
+using SuperSquirrel.Entities.Planets;
 using SuperSquirrel.Helpers;
 
 namespace SuperSquirrel.Entities.RopePhysics
@@ -11,6 +12,9 @@ namespace SuperSquirrel.Entities.RopePhysics
 	class Rope
 	{
 		private const int DEFAULT_MASS = 1;
+		private const int ITERATIONS = 1;
+		private const int MASS_MAX_SPEED = 40;
+		private const float DAMPING = 0.0075f;
 
 		public const int DEFAULT_SEGMENT_LENGTH = 25;
 
@@ -22,16 +26,18 @@ namespace SuperSquirrel.Entities.RopePhysics
 		}
 
 		private List<Mass> masses;
-		private List<Spring> springs;
+
+		private int numSegments;
+		private int segmentLength;
 
 		public Rope(int length, Vector2 position, Mass headMass, Mass tailMass)
 		{
 			int numMasses = (int)(length / DEFAULT_SEGMENT_LENGTH) + 1;
-			int numSprings = numMasses - 1;
+
+			numSegments = numMasses - 1;
+			segmentLength = length / numSegments;
 
 			masses = new List<Mass>();
-			springs = new List<Spring>();
-
 			masses.Add(headMass);
 
 			for (int i = 1; i < numMasses - 1; i++)
@@ -40,13 +46,6 @@ namespace SuperSquirrel.Entities.RopePhysics
 			}
 
 			masses.Add(tailMass);
-
-			for (int i = 0; i < numSprings; i++)
-			{
-				springs.Add(new Spring(masses[i], masses[i + 1]));
-			}
-
-			Spring.SegmentLength = length / numSprings;
 		}
 
 		public float CalculateEndRotation()
@@ -60,23 +59,82 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 		public void Update(float dt)
 		{
-			const int ITERATIONS = 8;
-			const float DAMPING = 0.01f;
-
-			for (int i = 0; i < ITERATIONS; i++)
+			for (int i = 0; i < masses.Count - 1; i++)
 			{
-				foreach (Spring spring in springs)
+				for (int j = i; j < masses.Count - 1; j++)
 				{
-					spring.Update(dt);
+					UpdateMasses(masses[j], masses[j + 1], dt);
 				}
+			}
 
-				foreach (Mass mass in masses)
+			CheckPlanets();
+		}
+
+		private void UpdateMasses(Mass mass1, Mass mass2, float dt)
+		{
+			if (mass1.Fixed && mass2.Fixed)
+			{
+				return;
+			}
+
+			if (!mass1.Fixed)
+			{
+				mass1.Position += mass1.Velocity * dt;
+			}
+
+			if (!mass2.Fixed)
+			{
+				mass2.Position += mass2.Velocity * dt;
+			}
+
+			float distance = Vector2.Distance(mass1.Position, mass2.Position);
+			float difference = distance - segmentLength;
+
+			if (difference > 0)
+			{
+				Vector2 direction = Vector2.Normalize(mass1.Position - mass2.Position);
+
+				if (mass1.Fixed)
 				{
-					if (!mass.Fixed)
-					{
-						mass.ApplyForce(-mass.Velocity * DAMPING);
-						mass.Position += mass.Velocity * dt;
-					}
+					UpdateMass(mass2, direction * difference);
+				}
+				else if (mass2.Fixed)
+				{
+					UpdateMass(mass1, -direction * difference);
+				}
+				else
+				{
+					float totalMass = mass1.MassValue + mass2.MassValue;
+					float amount1 = mass2.MassValue / totalMass;
+					float amount2 = mass1.MassValue / totalMass;
+
+					Vector2 offset1 = -direction * difference * amount1;
+					Vector2 offset2 = direction * difference * amount2;
+
+					UpdateMass(mass1, offset1);
+					UpdateMass(mass2, offset2);
+				}
+			}
+		}
+
+		private void UpdateMass(Mass mass, Vector2 offset)
+		{
+			mass.Position += offset;
+			mass.Velocity += offset;
+		}
+
+		private void CheckPlanets()
+		{
+			foreach (Mass mass in masses)
+			{
+				ProximityData data = planetHelper.CheckCollision(mass.Position);
+
+				if (data != null)
+				{
+					Planet planet = data.Planet;
+
+					mass.Position = planet.Center + data.Direction * planet.Radius;
+					mass.ApplyForce(data.Direction * (planet.Radius - data.Distance));
 				}
 			}
 		}
@@ -86,49 +144,6 @@ namespace SuperSquirrel.Entities.RopePhysics
 			for (int i = 0; i < masses.Count - 1; i++)
 			{
 				DrawingFunctions.DrawLine(sb, masses[i].Position, masses[i + 1].Position, Color.Black);
-			}
-		}
-
-		private class Spring
-		{
-			public static float SegmentLength { get; set; }
-
-			private Mass mass1;
-			private Mass mass2;
-
-			// taken from http://nehe.gamedev.net/tutorial/rope_physics/17006/
-			public Spring(Mass mass1, Mass mass2)
-			{
-				this.mass1 = mass1;
-				this.mass2 = mass2;
-			}
-
-			public void Update(float dt)
-			{
-				const float K = 0.5f;
-				const float FRICTION = 0.075f;
-
-				Vector2 force = Vector2.Zero;
-				Vector2 difference = mass1.Position - mass2.Position;
-
-				float magnitude = difference.Length();
-				float dX = magnitude - SegmentLength;
-
-				if (dX > 0)
-				{
-					force -= (difference / magnitude) * dX * K;
-					force -= (mass1.Velocity - mass2.Velocity) * FRICTION * dt;
-
-					if (!mass1.Fixed)
-					{
-						mass1.ApplyForce(force);
-					}
-
-					if (!mass2.Fixed)
-					{
-						mass2.ApplyForce(-force);
-					}
-				}
 			}
 		}
 	}
