@@ -38,7 +38,7 @@ namespace SuperSquirrel.Helpers
 				if (planet.BoundingCircle.ContainsPoint(point))
 				{
 					Vector2 center = planet.BoundingCircle.Center;
-					Vector2 direction = Vector2.Normalize(point - center);
+					Vector2 direction = Vector2.Normalize(center - point);
 
 					float distance = Vector2.Distance(center, point);
 

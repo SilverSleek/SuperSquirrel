@@ -26,5 +26,13 @@ namespace SuperSquirrel.Common
 
 			return new Vector2(x, y);
 		}
+
+		public static Vector2 ProjectVector(Vector2 vector, Vector2 target)
+		{
+			// taken from http://en.wikipedia.org/wiki/Vector_projection
+			Vector2 targetNormal = Vector2.Normalize(target);
+
+			return Vector2.Dot(vector, targetNormal) * targetNormal;
+		}
 	}
 }

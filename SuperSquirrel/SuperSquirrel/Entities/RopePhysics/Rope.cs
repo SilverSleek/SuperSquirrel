@@ -133,7 +133,8 @@ namespace SuperSquirrel.Entities.RopePhysics
 				{
 					Planet planet = data.Planet;
 
-					mass.Position = planet.Center + data.Direction * planet.Radius;
+					mass.Position = planet.Center - data.Direction * planet.Radius;
+					mass.Velocity -= Functions.ProjectVector(mass.Velocity, data.Direction);
 					mass.ApplyForce(data.Direction * (planet.Radius - data.Distance));
 				}
 			}
