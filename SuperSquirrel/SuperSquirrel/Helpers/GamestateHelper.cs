@@ -68,18 +68,17 @@ namespace SuperSquirrel.Helpers
 			List<Laser> lasers = new List<Laser>();
 			List<Enemy> enemies = new List<Enemy>();
 			List<Planet> planets = new List<Planet>();
-			planets.Add(new Planet(Vector2.Zero, PlanetSizes.MEDIUM));
 
 			LaserHelper laserHelper = new LaserHelper(lasers, planets);
-			SpawnHelper spawnHelper = new SpawnHelper(planets, enemies);
 			PlanetHelper planetHelper = new PlanetHelper(planets);
+			GenerationHelper generationHelper = new GenerationHelper(planets, enemies);
 
 			Hud hud = new Hud();
 			//Stars stars = new Stars();
 			Player player = new Player(planets[0], planetHelper);
 			//RopeTester ropeTester = new RopeTester();
 			TutorialIcons icons = new TutorialIcons(updateables, drawables);
-			
+		
 			LaserWrapper laserWrapper = new LaserWrapper(lasers);
 			EnemyWrapper enemyWrapper = new EnemyWrapper(player, enemies);
 			PlanetWrapper planetWrapper = new PlanetWrapper(planets);
@@ -94,7 +93,7 @@ namespace SuperSquirrel.Helpers
 			updateables.Add(enemyWrapper);
 			updateables.Add(laserWrapper);
 			updateables.Add(laserHelper);
-			updateables.Add(spawnHelper);
+			updateables.Add(generationHelper);
 			updateables.Add(hud);
 			//updateables.Add(stars);
 

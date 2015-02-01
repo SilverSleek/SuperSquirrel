@@ -31,6 +31,7 @@ namespace SuperSquirrel.Entities
 			debugVerticalEnd = new Vector2(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT);
 			debugHorizontalStart = new Vector2(0, Constants.SCREEN_HEIGHT / 2);
 			debugHorizontalEnd = new Vector2(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT / 2);
+			VisibleArea = new Rectangle((int)-screenCenter.X, (int)-screenCenter.Y, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT); 
 
 			Zoom = 1;
 			Transform = Matrix.Identity;
@@ -39,6 +40,7 @@ namespace SuperSquirrel.Entities
 
 		public Vector2 Position { get; set; }
 		public Vector2 LerpTargetPosition { get; set; }
+		public Rectangle VisibleArea { get; private set; }
 
 		public float Rotation { get; set; }
 		public float Zoom { get; set; }
@@ -79,6 +81,11 @@ namespace SuperSquirrel.Entities
 			}
 
 			Vector2 correctedPosition = new Vector2((int)Position.X, (int)Position.Y);
+
+			Rectangle visibleArea = VisibleArea;
+			visibleArea.X = (int)(Position.X - screenCenter.X);
+			visibleArea.Y = (int)(Position.Y - screenCenter.Y);
+			VisibleArea = visibleArea;
 
 			Transform = Matrix.CreateTranslation(new Vector3(correctedPosition, 0)) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateScale(Zoom) *
 				Matrix.CreateTranslation(new Vector3(screenCenter, 0));
