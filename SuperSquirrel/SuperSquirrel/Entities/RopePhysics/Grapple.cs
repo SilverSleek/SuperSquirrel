@@ -13,7 +13,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 	{
 		private const int MASS = 50;
 		private const int HEAD_OFFSET = 24;
-		private const int MAX_ROPE_LENGTH = 500;
+		private const int MAX_ROPE_LENGTH = 150;
 
 		private Player player;
 		private Sprite sprite;
