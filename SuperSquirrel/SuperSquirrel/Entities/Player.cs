@@ -20,7 +20,7 @@ namespace SuperSquirrel.Entities
 	{
 		private const int STARTING_HEALTH = 20;
 		private const int CIRCLE_RADIUS = 10;
-		private const int MASS = 10;
+		private const int MASS = 25;
 		private const int LASER_SPEED = 600;
 		private const int GRAPPLE_SPEED = 150;
 
@@ -171,13 +171,16 @@ namespace SuperSquirrel.Entities
 
 				if (rightButtonPressedThisFrame)
 				{
-					tetherMass = new Mass(MASS, Position, Vector2.Zero);
+					Vector2 tetherMassVelocity = movementState == MovementStates.DRIFT ? Velocity : tetherMass.Velocity;
+
+					tetherMass = new Mass(MASS, Position, tetherMassVelocity);
 					tetherMass.Fixed = movementState == MovementStates.PLANET;
 
 					if (movementState == MovementStates.DRIFT)
 					{
 						movementState = MovementStates.GRAPPLE;
 						lastPlanet = null;
+						Velocity = Vector2.Zero;
 					}
 
 					grapple.Launch(Position, direction * GRAPPLE_SPEED, angle, tetherMass);

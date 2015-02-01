@@ -11,6 +11,8 @@ namespace SuperSquirrel.Helpers
 {
 	class PlanetHelper
 	{
+		private const float GRAVITY_FACTOR = 1;
+
 		private List<Planet> planets;
 
 		public PlanetHelper(List<Planet> planets)
@@ -52,8 +54,6 @@ namespace SuperSquirrel.Helpers
 
 		public Vector2 CalculateGravity(Vector2 position, float mass)
 		{
-			const int GRAVITY_FACTOR = 5;
-
 			Vector2 gravity = Vector2.Zero;
 
 			foreach (Planet planet in planets)

@@ -9,7 +9,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 {
 	class Grapple : Mass
 	{
-		private const int MASS = 5;
+		private const int MASS = 50;
 		private const int ROPE_LENGTH = 250;
 		private const int HEAD_OFFSET = 24;
 
