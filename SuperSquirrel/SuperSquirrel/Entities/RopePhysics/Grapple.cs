@@ -13,15 +13,17 @@ namespace SuperSquirrel.Entities.RopePhysics
 	{
 		private const int MASS = 50;
 		private const int HEAD_OFFSET = 24;
-		private const int MAX_ROPE_LENGTH = 150;
+		private const int MAX_ROPE_LENGTH = 500;
 
+		private Player player;
 		private Sprite sprite;
 		private Mass secondMass;
 		private PlanetHelper planetHelper;
 
-		public Grapple(PlanetHelper planetHelper) :
+		public Grapple(Player player, PlanetHelper planetHelper) :
 			base(MASS, Vector2.Zero, Vector2.Zero)
 		{
+			this.player = player;
 			this.planetHelper = planetHelper;
 
 			sprite = new Sprite(ContentLoader.LoadTexture("Grapple"), Vector2.Zero, OriginLocations.BOTTOM_CENTER);
@@ -57,25 +59,34 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 			if (!Fixed)
 			{
-				float endRotation = Functions.ComputeAngle(secondMass.Position, Position);
+				CheckCollision();
+			}
+		}
 
+		private void CheckCollision()
+		{
+			float endRotation = Functions.ComputeAngle(secondMass.Position, Position);
+
+			sprite.Position = Position;
+			sprite.Rotation = endRotation + MathHelper.PiOver2;
+
+			Vector2 headOffset = Functions.ComputeDirection(endRotation) * HEAD_OFFSET;
+			Vector2 headPosition = Position + headOffset;
+
+			ProximityData data = planetHelper.CheckCollision(headPosition);
+
+			if (data != null)
+			{
+				Planet planet = data.Planet;
+
+				Position = planet.Center - data.Direction * planet.Radius - headOffset;
 				sprite.Position = Position;
-				sprite.Rotation = endRotation + MathHelper.PiOver2;
+				sprite.Rotation = data.Angle + MathHelper.PiOver2;
 
-				Vector2 headOffset = Functions.ComputeDirection(endRotation) * HEAD_OFFSET;
-				Vector2 headPosition = Position + headOffset;
+				Rope.PurgeSleepingMasses();
+				player.RegisterGrappleFixed();
 
-				ProximityData data = planetHelper.CheckCollision(headPosition);
-
-				if (data != null)
-				{
-					Planet planet = data.Planet;
-
-					Position = planet.Center - data.Direction * planet.Radius - headOffset;
-					sprite.Position = Position;
-					sprite.Rotation = data.Angle + MathHelper.PiOver2;
-					Fixed = true;
-				}
+				Fixed = true;
 			}
 		}
 

@@ -79,6 +79,20 @@ namespace SuperSquirrel.Entities.RopePhysics
 		}
 		*/
 
+		public void PurgeSleepingMasses()
+		{
+			if (SleepingMasses.Count > 0)
+			{
+				int firstSleepingMassIndex = masses.IndexOf(SleepingMasses[0]);
+
+				springs[firstSleepingMassIndex - 1].Mass2 = masses[masses.Count - 1];
+				masses.RemoveRange(masses.IndexOf(SleepingMasses[0]), SleepingMasses.Count);
+				springs.RemoveRange(firstSleepingMassIndex, SleepingMasses.Count - 1);
+			}
+
+			SleepingMasses = null;
+		}
+
 		public void Update(float dt)
 		{
 			foreach (Mass mass in masses)
@@ -140,6 +154,12 @@ namespace SuperSquirrel.Entities.RopePhysics
 			}
 
 			public float SegmentLength { get; set; }
+
+			// this is used to correct springs when purging sleeping masses
+			public Mass Mass2
+			{
+				set { mass2 = value; }
+			}
 
 			public void Update(float dt)
 			{

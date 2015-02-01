@@ -56,7 +56,7 @@ namespace SuperSquirrel.Entities
 			Camera.Instance.Position = -startingPlanet.Center;
 			
 			sprite = new Sprite(ContentLoader.LoadTexture("Player"), Vector2.Zero, OriginLocations.CENTER);
-			grapple = new Grapple(planetHelper);
+			grapple = new Grapple(this, planetHelper);
 			movementState = MovementStates.PLANET;
 			runningController = new PlanetRunningController(ACCELERATION, DECELERATION, MAX_SPEED, startingPlanet);
 
@@ -251,7 +251,7 @@ namespace SuperSquirrel.Entities
 					break;
 			}
 
-			if (grapple.Active)
+			if (grapple.Active && !grapple.Fixed)
 			{
 				foreach (Mass mass in grapple.Rope.SleepingMasses)
 				{
@@ -332,7 +332,7 @@ namespace SuperSquirrel.Entities
 			}
 		}
 
-		public void UpdateCamera()
+		private void UpdateCamera()
 		{
 			Camera camera = Camera.Instance;
 
@@ -351,6 +351,11 @@ namespace SuperSquirrel.Entities
 			Vector2 direction = Vector2.Normalize(landedPlanet.Center - Position);
 
 			return -(landedPlanet.Center - direction * landedPlanet.Radius + direction * Planet.CAMERA_SURFACE_DEPTH);
+		}
+
+		public void RegisterGrappleFixed()
+		{
+			nextAwakeMass = null;
 		}
 
 		public override void Draw(SpriteBatch sb)
