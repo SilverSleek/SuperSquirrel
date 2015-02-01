@@ -22,7 +22,7 @@ namespace SuperSquirrel.Entities
 		private const int CIRCLE_RADIUS = 10;
 		private const int MASS = 25;
 		private const int LASER_SPEED = 600;
-		private const int GRAPPLE_SPEED = 150;
+		private const int GRAPPLE_SPEED = 500;
 
 		private enum MovementStates
 		{
@@ -34,6 +34,7 @@ namespace SuperSquirrel.Entities
 		private Sprite sprite;
 		private Grapple grapple;
 		private Mass tetherMass;
+		private Mass nextAwakeMass;
 		private Planet landedPlanet;
 		private Planet lastPlanet;
 		private PlanetHelper planetHelper;
@@ -169,12 +170,9 @@ namespace SuperSquirrel.Entities
 						angle, this)));
 				}
 
-				if (rightButtonPressedThisFrame)
+				if (rightButtonPressedThisFrame && grapple.Ready)
 				{
-					Vector2 tetherMassVelocity = movementState == MovementStates.DRIFT ? Velocity : tetherMass.Velocity;
-
-					tetherMass = new Mass(MASS, Position, tetherMassVelocity);
-					tetherMass.Fixed = movementState == MovementStates.PLANET;
+					CreateTetherMass();
 
 					if (movementState == MovementStates.DRIFT)
 					{
@@ -184,8 +182,26 @@ namespace SuperSquirrel.Entities
 					}
 
 					grapple.Launch(Position, direction * GRAPPLE_SPEED, angle, tetherMass);
+					nextAwakeMass = grapple;
 				}
 			}
+		}
+		
+		private void CreateTetherMass()
+		{
+			Vector2 tetherMassVelocity = Vector2.Zero;
+
+			if (movementState == MovementStates.DRIFT)
+			{
+				tetherMassVelocity = Velocity;
+			}
+			else if (movementState == MovementStates.GRAPPLE)
+			{
+				tetherMassVelocity = tetherMass.Velocity;
+			}
+
+			tetherMass = new Mass(MASS, Position, tetherMassVelocity);
+			tetherMass.Fixed = movementState == MovementStates.PLANET;
 		}
 
 		protected override void OnDamage(int damage)
@@ -203,6 +219,20 @@ namespace SuperSquirrel.Entities
 		{
 			if (grapple.Active)
 			{
+				if (nextAwakeMass != null && Vector2.Distance(Position, nextAwakeMass.Position) >= Rope.MAX_SEGMENT_LENGTH)
+				{
+					List<Mass> sleepingMasses = grapple.Rope.SleepingMasses;
+
+					sleepingMasses[0].Asleep = false;
+					nextAwakeMass = sleepingMasses[0];
+					sleepingMasses.RemoveAt(0);
+
+					if (sleepingMasses.Count == 0)
+					{
+						nextAwakeMass = null;
+					}
+				}
+
 				grapple.Update(dt);
 			}
 
@@ -219,6 +249,14 @@ namespace SuperSquirrel.Entities
 				case MovementStates.GRAPPLE:
 					UpdateGrappleMovement(dt);
 					break;
+			}
+
+			if (grapple.Active)
+			{
+				foreach (Mass mass in grapple.Rope.SleepingMasses)
+				{
+					mass.Position = Position;
+				}
 			}
 
 			BoundingCircle.Center = Position;

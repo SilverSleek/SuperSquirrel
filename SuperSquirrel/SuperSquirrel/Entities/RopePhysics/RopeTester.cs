@@ -21,7 +21,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 			mass = new Mass(1, Vector2.One, Vector2.Zero);
 			mass.Fixed = true;
 
-			rope = new Rope(ROPE_LENGTH, Vector2.One, mass, tailMass);
+			//rope = new Rope(Vector2.Zero, new Vector2(300, 0), mass);
 
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LISTENER, new ListenerEventData(EventTypes.MOUSE, this)));
 		}

@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Common;
@@ -10,10 +12,11 @@ namespace SuperSquirrel.Entities.RopePhysics
 	class Grapple : Mass
 	{
 		private const int MASS = 50;
-		private const int ROPE_LENGTH = 250;
 		private const int HEAD_OFFSET = 24;
+		private const int MAX_ROPE_LENGTH = 150;
 
 		private Sprite sprite;
+		private Mass secondMass;
 		private PlanetHelper planetHelper;
 
 		public Grapple(PlanetHelper planetHelper) :
@@ -30,12 +33,13 @@ namespace SuperSquirrel.Entities.RopePhysics
 		public bool Ready { get; private set; }
 		public bool Active { get; private set; }
 
-		public void Launch(Vector2 position, Vector2 velocity, float angle, Mass tailMass)
+		public void Launch(Vector2 position, Vector2 velocity, float angle, Mass playerMass)
 		{
 			sprite.Position = position;
 			sprite.Rotation = angle + MathHelper.PiOver2;
 
-			Rope = new Rope(ROPE_LENGTH, position, tailMass, this);
+			Rope = new Rope(position, this, playerMass, MAX_ROPE_LENGTH);
+			secondMass = playerMass;
 			Position = position;
 			Velocity = velocity;
 			Active = true;
@@ -53,7 +57,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 			if (!Fixed)
 			{
-				float endRotation = Rope.CalculateEndRotation();
+				float endRotation = Functions.ComputeAngle(secondMass.Position, Position);
 
 				sprite.Position = Position;
 				sprite.Rotation = endRotation + MathHelper.PiOver2;
