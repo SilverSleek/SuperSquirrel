@@ -14,6 +14,12 @@ namespace SuperSquirrel.Wrappers
 		public PlanetWrapper(List<Planet> planets)
 		{
 			this.planets = planets;
+
+			planets.Add(new Planet(new Vector2(300, -400), PlanetSizes.MEDIUM));
+			planets.Add(new Planet(new Vector2(100, 600), PlanetSizes.LARGE));
+			planets.Add(new Planet(new Vector2(-400, 50), PlanetSizes.SMALL));
+			planets.Add(new Planet(new Vector2(-300, -300), PlanetSizes.MEDIUM));
+			planets.Add(new Planet(new Vector2(500, -50), PlanetSizes.SMALL));
 		}
 
 		public override void Update(float dt)

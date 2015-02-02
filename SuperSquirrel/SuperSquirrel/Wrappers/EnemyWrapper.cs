@@ -13,6 +13,10 @@ namespace SuperSquirrel.Wrappers
 		public EnemyWrapper(Player player, List<Enemy> enemies)
 		{
 			Enemies = enemies;
+			enemies.Add(new TargetFinder(player, new Vector2(200, -200)));
+			enemies.Add(new TargetFinder(player, new Vector2(-100, 300)));
+			enemies.Add(new TargetFinder(player, new Vector2(-300, -100)));
+			enemies.Add(new TargetFinder(player, new Vector2(450, 250)));
 		}
 
 		public List<Enemy> Enemies { get; private set; }

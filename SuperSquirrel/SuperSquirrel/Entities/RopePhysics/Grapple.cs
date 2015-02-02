@@ -11,9 +11,10 @@ namespace SuperSquirrel.Entities.RopePhysics
 {
 	class Grapple : Mass
 	{
-		private const int MASS = 50;
+		private const int MASS = 150;
 		private const int HEAD_OFFSET = 24;
 		private const int MAX_ROPE_LENGTH = 250;
+		private const int READY_DELAY = 500;
 		private const int ABANDONED_DURATION = 10000;
 
 		private Player player;
@@ -56,7 +57,8 @@ namespace SuperSquirrel.Entities.RopePhysics
 		{
 			Retracting = false;
 
-			Timer timer = new Timer(ABANDONED_DURATION, () => { Destroy = true; }, false);
+			Timer readyTimer = new Timer(READY_DELAY, () => { Ready = true; }, false);
+			Timer destroyTimer = new Timer(ABANDONED_DURATION, () => { Destroy = true; }, false);
 		}
 
 		public void Update(float dt)

@@ -59,7 +59,7 @@ namespace SuperSquirrel.Managers
 		{
 			if (oldButton != newButton)
 			{
-				return newButton == ButtonState.Pressed ? ButtonStates.PRESSED_THIS_FRAME : ButtonStates.RELEASED;
+				return newButton == ButtonState.Pressed ? ButtonStates.PRESSED_THIS_FRAME : ButtonStates.RELEASED_THIS_FRAME;
 			}
 
 			return newButton == ButtonState.Pressed ? ButtonStates.HELD : ButtonStates.RELEASED;

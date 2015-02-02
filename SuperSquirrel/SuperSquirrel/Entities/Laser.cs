@@ -9,6 +9,8 @@ namespace SuperSquirrel.Entities
 {
 	class Laser
 	{
+		private const int TIP_OFFSET = 7;
+
 		private static Texture2D texture;
 
 		static Laser()
@@ -17,14 +19,11 @@ namespace SuperSquirrel.Entities
 		}
 
 		private Sprite sprite;
-
 		private Vector2 velocity;
 		private Vector2 tipOffset;
 
 		public Laser(Vector2 position, Vector2 velocity, float rotation, LivingEntity owner)
 		{
-			const int TIP_OFFSET = 14;
-
 			this.velocity = velocity;
 
 			float tipOffsetX = (float)Math.Cos(rotation) * TIP_OFFSET;

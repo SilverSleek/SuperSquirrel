@@ -20,9 +20,10 @@ namespace SuperSquirrel.Entities
 	{
 		private const int STARTING_HEALTH = 20;
 		private const int CIRCLE_RADIUS = 10;
-		private const int MASS = 25;
+		private const int MASS = 100;
 		private const int LASER_SPEED = 600;
 		private const int GRAPPLE_SPEED = 500;
+		private const int LASER_DELAY = 100;
 
 		private enum MovementStates
 		{
@@ -31,6 +32,7 @@ namespace SuperSquirrel.Entities
 			GRAPPLE
 		}
 
+		private Timer laserTimer;
 		private Sprite sprite;
 		private Grapple grapple;
 		private Mass tetherMass;
@@ -40,6 +42,8 @@ namespace SuperSquirrel.Entities
 		private PlanetHelper planetHelper;
 		private MovementStates movementState;
 		private PlanetRunningController runningController;
+
+		private Vector2 mousePosition;
 
 		public Player(Planet startingPlanet, PlanetHelper planetHelper) :
 			base(Vector2.Zero, CIRCLE_RADIUS, STARTING_HEALTH)
@@ -180,22 +184,28 @@ namespace SuperSquirrel.Entities
 		private void HandleMouseData(MouseEventData data)
 		{
 			bool leftButtonPressedThisFrame = data.LeftButtonState == ButtonStates.PRESSED_THIS_FRAME;
+			bool leftButtonReleasedThisFrame = data.LeftButtonState == ButtonStates.RELEASED_THIS_FRAME;
 			bool rightButtonPressedThisFrame = data.RightButtonState == ButtonStates.PRESSED_THIS_FRAME;
 
-			if (leftButtonPressedThisFrame || rightButtonPressedThisFrame)
+			if (leftButtonPressedThisFrame || leftButtonReleasedThisFrame || rightButtonPressedThisFrame)
 			{
-				float angle = Functions.ComputeAngle(Position, data.NewWorldPosition);
-
-				Vector2 direction = Functions.ComputeDirection(angle);
-
 				if (leftButtonPressedThisFrame)
 				{
-					SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LASER, new LaserEventData(Position, direction * LASER_SPEED,
-						angle, this)));
+					laserTimer = new Timer(LASER_DELAY, FireLaser, true);
+					laserTimer.Delay = laserTimer.Duration;
+				}
+				else if (leftButtonReleasedThisFrame)
+				{
+					laserTimer.Destroy = true;
+					laserTimer = null;
 				}
 
 				if (rightButtonPressedThisFrame)
 				{
+					float angle = Functions.ComputeAngle(Position, data.NewWorldPosition);
+
+					Vector2 direction = Functions.ComputeDirection(angle);
+
 					if (grapple.Ready)
 					{
 						FireGrapple(direction, angle);
@@ -206,6 +216,18 @@ namespace SuperSquirrel.Entities
 					}
 				}
 			}
+
+			mousePosition = data.NewWorldPosition;
+		}
+
+		private void FireLaser()
+		{
+			float angle = Functions.ComputeAngle(Position, mousePosition);
+
+			Vector2 direction = Functions.ComputeDirection(angle);
+
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.LASER, new LaserEventData(Position, direction * LASER_SPEED,
+				angle, this)));
 		}
 
 		private void FireGrapple(Vector2 direction, float angle)
