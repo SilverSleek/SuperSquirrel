@@ -25,7 +25,7 @@ namespace SuperSquirrel.Entities
 
 		public void Draw(SpriteBatch sb)
 		{
-			sb.DrawString(font, Value, Position, Color.White, Rotation, origin, 1, SpriteEffects.None, 0);
+			sb.DrawString(font, Value, Position, Color.Black, Rotation, origin, 1, SpriteEffects.None, 0);
 		}
 	}
 }
