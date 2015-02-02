@@ -18,12 +18,16 @@ namespace SuperSquirrel.Entities.Enemies
 	{
 		private static Dictionary<EnemyTypes, string> nameMap;
 
-		static Enemy()
+		public static void Initialize(Player player)
 		{
+			Player = player;
+
 			nameMap = new Dictionary<EnemyTypes, string>();
 			nameMap.Add(EnemyTypes.PLANET_WALKER, "PlanetWalker");
 			nameMap.Add(EnemyTypes.TARGET_FINDER, "TargetFinder");
 		}
+
+		protected static Player Player { get; set; }
 
 		private int pointValue;
 		private int timeValue;

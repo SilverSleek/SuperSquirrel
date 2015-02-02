@@ -82,12 +82,13 @@ namespace SuperSquirrel.Helpers
 			//RopeTester ropeTester = new RopeTester();
 			TutorialIcons icons = new TutorialIcons(updateables, drawables);
 
+			Enemy.Initialize(player);
+			Rope.Initialize(planetHelper);
+
 			LaserWrapper laserWrapper = new LaserWrapper(lasers);
 			PlanetWrapper planetWrapper = new PlanetWrapper(planets);
-			EnemyWrapper enemyWrapper = new EnemyWrapper(player, enemies);
+			EnemyWrapper enemyWrapper = new EnemyWrapper(enemies, planets);
 			GrappleWrapper grappleWrapper = new GrappleWrapper();
-
-			Rope.Initialize(planetHelper);
 
 			updateables.Add(planetWrapper);
 			//updateables.Add(ropeTester);

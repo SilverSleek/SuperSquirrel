@@ -42,18 +42,15 @@ namespace SuperSquirrel.Entities.Enemies
 
 		private float laserRotation;
 
-		private Player player;
 		private AIStates aiState;
 		private Timer targetTimer;
 		private Timer otherTimer;
 
 		private int shotCount;
 
-		public TargetFinder(Player player, Vector2 position) :
+		public TargetFinder(Vector2 position) :
 			base(EnemyTypes.TARGET_FINDER, position, HEALTH, POINT_VALUE, TIME_VALUE, CIRCLE_RADIUS)
 		{
-			this.player = player;
-
 			aiState = AIStates.IDLE;
 		}
 
@@ -67,7 +64,7 @@ namespace SuperSquirrel.Entities.Enemies
 
 			if (aiState == AIStates.IDLE || aiState == AIStates.SEARCH || aiState == AIStates.TARGET)
 			{
-				inRange = Vector2.Distance(Position, player.Position) <= RANGE;
+				inRange = Vector2.Distance(Position, Player.Position) <= RANGE;
 			}
 
 			if (inRange)
@@ -83,7 +80,7 @@ namespace SuperSquirrel.Entities.Enemies
 					targetTimer.Paused = false;
 				}
 
-				targetPosition = player.Position;
+				targetPosition = Player.Position;
 				aiState = AIStates.TARGET;
 			}
 			else if (aiState == AIStates.TARGET)

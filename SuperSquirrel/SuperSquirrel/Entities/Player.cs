@@ -25,6 +25,10 @@ namespace SuperSquirrel.Entities
 		private const int GRAPPLE_SPEED = 500;
 		private const int LASER_DELAY = 100;
 
+		private const float ACCELERATION = 4000;
+		private const float DECELERATION = 2000;
+		private const float MAX_SPEED = 600;
+
 		private enum MovementStates
 		{
 			PLANET,
@@ -48,10 +52,6 @@ namespace SuperSquirrel.Entities
 		public Player(Planet startingPlanet, PlanetHelper planetHelper) :
 			base(Vector2.Zero, CIRCLE_RADIUS, STARTING_HEALTH)
 		{
-			const float ACCELERATION = 4000;
-			const float DECELERATION = 2000;
-			const float MAX_SPEED = 600;
-
 			this.planetHelper = planetHelper;
 
 			landedPlanet = startingPlanet;

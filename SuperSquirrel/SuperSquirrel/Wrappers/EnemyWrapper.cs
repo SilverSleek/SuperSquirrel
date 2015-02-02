@@ -5,18 +5,30 @@ using Microsoft.Xna.Framework.Graphics;
 
 using SuperSquirrel.Entities;
 using SuperSquirrel.Entities.Enemies;
+using SuperSquirrel.Entities.Planets;
 
 namespace SuperSquirrel.Wrappers
 {
 	class EnemyWrapper : Wrapper
 	{
-		public EnemyWrapper(Player player, List<Enemy> enemies)
+		public EnemyWrapper(List<Enemy> enemies, List<Planet> planets)
 		{
 			Enemies = enemies;
-			enemies.Add(new TargetFinder(player, new Vector2(200, -200)));
-			enemies.Add(new TargetFinder(player, new Vector2(-100, 300)));
-			enemies.Add(new TargetFinder(player, new Vector2(-300, -100)));
-			enemies.Add(new TargetFinder(player, new Vector2(450, 250)));
+
+			AddTestEnemies(planets);
+		}
+
+		private void AddTestEnemies(List<Planet> planets)
+		{
+			Enemies.Add(new TargetFinder(new Vector2(200, -200)));
+			Enemies.Add(new TargetFinder(new Vector2(-100, 300)));
+			Enemies.Add(new TargetFinder(new Vector2(-300, -100)));
+			Enemies.Add(new TargetFinder(new Vector2(450, 250)));
+			Enemies.Add(new TargetFinder(new Vector2(450, 250)));
+
+			Enemies.Add(new PlanetWalker(planets[1]));
+			Enemies.Add(new PlanetWalker(planets[3]));
+			Enemies.Add(new PlanetWalker(planets[2]));
 		}
 
 		public List<Enemy> Enemies { get; private set; }
