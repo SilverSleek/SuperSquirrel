@@ -54,6 +54,8 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 		public void Abandon()
 		{
+			Retracting = false;
+
 			Timer timer = new Timer(ABANDONED_DURATION, () => { Destroy = true; }, false);
 		}
 

@@ -87,18 +87,7 @@ namespace SuperSquirrel.Entities
 				HandleJumping(data);
 			}
 
-			// the grapple can be retracted even when not fixed
-			if (grapple.Active)
-			{
-				if (data.KeysPressedThisFrame.Contains(Keys.S))
-				{
-					grapple.Retracting = true;
-				}
-				else if (data.KeysReleasedThisFrame.Contains(Keys.S))
-				{
-					grapple.Retracting = false;
-				}
-			}
+			CheckGrappleRetract(data);
 		}
 
 		private void HandleRunning(KeyboardEventData data)
@@ -166,6 +155,28 @@ namespace SuperSquirrel.Entities
 			}
 		}
 
+		private void CheckGrappleRetract(KeyboardEventData data)
+		{
+			// the grapple can be retracted even when not fixed
+			if (grapple.Active)
+			{
+				if (data.KeysPressedThisFrame.Contains(Keys.S))
+				{
+					grapple.Retracting = true;
+
+					if (grapple.Rope.SleepingMasses != null)
+					{
+						grapple.Rope.PurgeSleepingMasses();
+						nextAwakeMass = null;
+					}
+				}
+				else if (data.KeysReleasedThisFrame.Contains(Keys.S))
+				{
+					grapple.Retracting = false;
+				}
+			}
+		}
+
 		private void HandleMouseData(MouseEventData data)
 		{
 			bool leftButtonPressedThisFrame = data.LeftButtonState == ButtonStates.PRESSED_THIS_FRAME;
@@ -217,6 +228,7 @@ namespace SuperSquirrel.Entities
 			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GRAPPLE, grapple));
 
 			tetherMass.Fixed = false;
+			tetherMass.MassValue = Mass.DEFAULT_MASS;
 
 			grapple.Rope.PurgeSleepingMasses();
 			grapple.Abandon();
@@ -295,9 +307,14 @@ namespace SuperSquirrel.Entities
 
 			if (grapple.Active && !grapple.Fixed)
 			{
-				foreach (Mass mass in grapple.Rope.SleepingMasses)
+				List<Mass> sleepingMasses = grapple.Rope.SleepingMasses;
+
+				if (sleepingMasses != null)
 				{
-					mass.Position = Position;
+					foreach (Mass mass in sleepingMasses)
+					{
+						mass.Position = Position;
+					}
 				}
 			}
 
