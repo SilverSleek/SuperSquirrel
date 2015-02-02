@@ -69,9 +69,12 @@ namespace SuperSquirrel.Helpers
 			List<Enemy> enemies = new List<Enemy>();
 			List<Planet> planets = new List<Planet>();
 
+			// this the player's temporary starting planet
+			planets.Add(new Planet(Vector2.Zero, PlanetSizes.SMALL));
+
 			LaserHelper laserHelper = new LaserHelper(lasers, planets);
 			PlanetHelper planetHelper = new PlanetHelper(planets);
-			GenerationHelper generationHelper = new GenerationHelper(planets, enemies);
+			//GenerationHelper generationHelper = new GenerationHelper(planets, enemies);
 
 			Hud hud = new Hud();
 			//Stars stars = new Stars();
@@ -95,7 +98,7 @@ namespace SuperSquirrel.Helpers
 			updateables.Add(laserWrapper);
 			updateables.Add(grappleWrapper);
 			updateables.Add(laserHelper);
-			updateables.Add(generationHelper);
+			//updateables.Add(generationHelper);
 			updateables.Add(hud);
 			//updateables.Add(stars);
 
