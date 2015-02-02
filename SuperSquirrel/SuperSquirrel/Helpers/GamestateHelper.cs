@@ -82,6 +82,7 @@ namespace SuperSquirrel.Helpers
 			LaserWrapper laserWrapper = new LaserWrapper(lasers);
 			EnemyWrapper enemyWrapper = new EnemyWrapper(player, enemies);
 			PlanetWrapper planetWrapper = new PlanetWrapper(planets);
+			GrappleWrapper grappleWrapper = new GrappleWrapper();
 
 			Rope.Initialize(planetHelper);
 
@@ -92,6 +93,7 @@ namespace SuperSquirrel.Helpers
 			updateables.Add(Camera.Instance);
 			updateables.Add(enemyWrapper);
 			updateables.Add(laserWrapper);
+			updateables.Add(grappleWrapper);
 			updateables.Add(laserHelper);
 			updateables.Add(generationHelper);
 			updateables.Add(hud);
@@ -100,6 +102,7 @@ namespace SuperSquirrel.Helpers
 			//drawables.Add(stars);
 			drawables.Add(planetWrapper);
 			drawables.Add(icons);
+			drawables.Add(grappleWrapper);
 			drawables.Add(enemyWrapper);
 			drawables.Add(player);
 			//drawables.Add(ropeTester);

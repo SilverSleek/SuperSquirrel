@@ -54,7 +54,7 @@ namespace SuperSquirrel.Entities
 			lastPlanet = landedPlanet;
 
 			Camera.Instance.Position = -startingPlanet.Center;
-			
+
 			sprite = new Sprite(ContentLoader.LoadTexture("Player"), Vector2.Zero, OriginLocations.CENTER);
 			grapple = new Grapple(this, planetHelper);
 			movementState = MovementStates.PLANET;
@@ -85,6 +85,19 @@ namespace SuperSquirrel.Entities
 			{
 				HandleRunning(data);
 				HandleJumping(data);
+			}
+
+			// the grapple can be retracted even when not fixed
+			if (grapple.Active)
+			{
+				if (data.KeysPressedThisFrame.Contains(Keys.S))
+				{
+					grapple.Retracting = true;
+				}
+				else if (data.KeysReleasedThisFrame.Contains(Keys.S))
+				{
+					grapple.Retracting = false;
+				}
 			}
 		}
 
@@ -170,20 +183,49 @@ namespace SuperSquirrel.Entities
 						angle, this)));
 				}
 
-				if (rightButtonPressedThisFrame && grapple.Ready)
+				if (rightButtonPressedThisFrame)
 				{
-					CreateTetherMass();
-
-					if (movementState == MovementStates.DRIFT)
+					if (grapple.Ready)
 					{
-						movementState = MovementStates.GRAPPLE;
-						lastPlanet = null;
-						Velocity = Vector2.Zero;
+						FireGrapple(direction, angle);
 					}
-
-					grapple.Launch(Position, direction * GRAPPLE_SPEED, angle, tetherMass);
-					nextAwakeMass = grapple;
+					else if (grapple.Active)
+					{
+						ReleaseGrapple();
+					}
 				}
+			}
+		}
+
+		private void FireGrapple(Vector2 direction, float angle)
+		{
+			CreateTetherMass();
+
+			if (movementState == MovementStates.DRIFT)
+			{
+				movementState = MovementStates.GRAPPLE;
+				lastPlanet = null;
+				Velocity = Vector2.Zero;
+			}
+
+			grapple.Launch(Position, direction * GRAPPLE_SPEED, angle, tetherMass);
+			nextAwakeMass = grapple;
+		}
+
+		private void ReleaseGrapple()
+		{
+			SimpleEvent.Queue.Enqueue(new SimpleEvent(EventTypes.GRAPPLE, grapple));
+
+			tetherMass.Fixed = false;
+
+			grapple.Rope.PurgeSleepingMasses();
+			grapple.Abandon();
+			grapple = new Grapple(this, planetHelper);
+
+			if (movementState == MovementStates.GRAPPLE)
+			{
+				Velocity = tetherMass.Velocity;
+				movementState = MovementStates.DRIFT;
 			}
 		}
 		
@@ -219,7 +261,7 @@ namespace SuperSquirrel.Entities
 		{
 			if (grapple.Active)
 			{
-				if (nextAwakeMass != null && Vector2.Distance(Position, nextAwakeMass.Position) >= Rope.MAX_SEGMENT_LENGTH)
+				if (nextAwakeMass != null && Vector2.Distance(Position, nextAwakeMass.Position) >= Spring.MAX_SEGMENT_LENGTH)
 				{
 					List<Mass> sleepingMasses = grapple.Rope.SleepingMasses;
 
@@ -320,7 +362,6 @@ namespace SuperSquirrel.Entities
 				{
 					landedPlanet = planet;
 					movementState = MovementStates.PLANET;
-					grapple.Retract();
 
 					runningController.SetLanding(landedPlanet, Position, Velocity);
 					Camera.Instance.SetLerpPositions(Camera.Instance.Position, CalculateCameraTarget());

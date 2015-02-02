@@ -12,8 +12,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 	class Rope
 	{
 		private const int ITERATIONS = 8;
-
-		public const int MAX_SEGMENT_LENGTH = 25;
+		private const int RETRACT_RATE = 150;
 
 		private static PlanetHelper planetHelper;
 
@@ -27,7 +26,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 		public Rope(Vector2 position, Mass headMass, Mass tailMass, int length)
 		{
-			int numMasses = (int)(length / MAX_SEGMENT_LENGTH) + 1;
+			int numMasses = (int)(length / Spring.MAX_SEGMENT_LENGTH) + 1;
 			int numSprings = numMasses - 1;
 
 			springs = new List<Spring>(numSprings);
@@ -51,6 +50,8 @@ namespace SuperSquirrel.Entities.RopePhysics
 				springs.Add(new Spring(masses[i], masses[i + 1], this));
 			}
 		}
+
+		public bool FullyRetracted { get; private set; }
 
 		public List<Mass> SleepingMasses { get; private set; }
 
@@ -81,16 +82,46 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 		public void PurgeSleepingMasses()
 		{
-			if (SleepingMasses.Count > 0)
+			// this list can be null if a grapple was abandoned and then it anchors to a planet
+			if (SleepingMasses != null)
 			{
-				int firstSleepingMassIndex = masses.IndexOf(SleepingMasses[0]);
+				if (SleepingMasses.Count > 0)
+				{
+					int firstSleepingMassIndex = masses.IndexOf(SleepingMasses[0]);
 
-				springs[firstSleepingMassIndex - 1].Mass2 = masses[masses.Count - 1];
-				masses.RemoveRange(masses.IndexOf(SleepingMasses[0]), SleepingMasses.Count);
-				springs.RemoveRange(firstSleepingMassIndex, SleepingMasses.Count - 1);
+					springs[firstSleepingMassIndex - 1].Mass2 = masses[masses.Count - 1];
+					masses.RemoveRange(masses.IndexOf(SleepingMasses[0]), SleepingMasses.Count);
+					springs.RemoveRange(firstSleepingMassIndex, SleepingMasses.Count - 1);
+				}
+
+				SleepingMasses = null;
 			}
+		}
 
-			SleepingMasses = null;
+		public void Retract(float dt)
+		{
+			Spring spring = springs[springs.Count - 1];
+			spring.SegmentLength -= RETRACT_RATE * dt;
+
+			if (spring.SegmentLength <= 0)
+			{
+				float leftoverRetractLength = -spring.SegmentLength;
+
+				springs.RemoveAt(springs.Count - 1);
+
+				if (springs.Count == 0)
+				{
+					FullyRetracted = true;
+				}
+				else
+				{
+					Spring nextSpring = springs[springs.Count - 1];
+
+					masses.RemoveAt(masses.Count - 2);
+					nextSpring.Mass2 = masses[masses.Count - 1];
+					nextSpring.SegmentLength -= leftoverRetractLength;
+				}
+			}
 		}
 
 		public void Update(float dt)
@@ -135,73 +166,6 @@ namespace SuperSquirrel.Entities.RopePhysics
 			for (int i = 0; i < masses.Count - 1; i++)
 			{
 				DrawingFunctions.DrawLine(sb, masses[i].Position, masses[i + 1].Position, Color.Black);
-			}
-		}
-
-		private class Spring
-		{
-			private Mass mass1;
-			private Mass mass2;
-			private Rope rope;
-
-			public Spring(Mass mass1, Mass mass2, Rope rope)
-			{
-				this.mass1 = mass1;
-				this.mass2 = mass2;
-				this.rope = rope;
-
-				SegmentLength = MAX_SEGMENT_LENGTH;
-			}
-
-			public float SegmentLength { get; set; }
-
-			// this is used to correct springs when purging sleeping masses
-			public Mass Mass2
-			{
-				set { mass2 = value; }
-			}
-
-			public void Update(float dt)
-			{
-				if ((mass1.Fixed && mass2.Fixed) || (mass1.Asleep && mass2.Asleep))
-				{
-					return;
-				}
-
-				float distance = Vector2.Distance(mass1.Position, mass2.Position);
-				float difference = distance - SegmentLength;
-
-				if (difference > 0)
-				{
-					Vector2 direction = Vector2.Normalize(mass1.Position - mass2.Position);
-
-					if (mass1.Fixed)
-					{
-						ApplyOffset(mass2, direction * difference);
-					}
-					else if (mass2.Fixed)
-					{
-						ApplyOffset(mass1, -direction * difference);
-					}
-					else
-					{
-						float totalMass = mass1.MassValue + mass2.MassValue;
-						float amount1 = mass2.MassValue / totalMass;
-						float amount2 = mass1.MassValue / totalMass;
-
-						Vector2 offset1 = -direction * difference * amount1;
-						Vector2 offset2 = direction * difference * amount2;
-
-						ApplyOffset(mass1, offset1);
-						ApplyOffset(mass2, offset2);
-					}
-				}
-			}
-
-			private void ApplyOffset(Mass mass, Vector2 offset)
-			{
-				mass.Position += offset;
-				mass.Velocity += offset;
 			}
 		}
 	}

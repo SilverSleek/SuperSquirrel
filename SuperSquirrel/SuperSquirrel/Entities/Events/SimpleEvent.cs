@@ -12,6 +12,7 @@ namespace SuperSquirrel.Entities.Events
 		HEALTH,
 		POINTS,
 		TIME,
+		GRAPPLE,
 		LASER,
 		EXIT
 	}

@@ -139,6 +139,7 @@
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\RopePhysics\Rope.cs" />
     <Compile Include="Entities\RopePhysics\RopeTester.cs" />
+    <Compile Include="Entities\RopePhysics\Spring.cs" />
     <Compile Include="Entities\Sprite.cs" />
     <Compile Include="Entities\Stars.cs" />
     <Compile Include="Entities\Text.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Wrappers\EnemyWrapper.cs" />
+    <Compile Include="Wrappers\GrappleWrapper.cs" />
     <Compile Include="Wrappers\LaserWrapper.cs" />
     <Compile Include="Wrappers\PlanetWrapper.cs" />
     <Compile Include="Wrappers\Wrapper.cs" />

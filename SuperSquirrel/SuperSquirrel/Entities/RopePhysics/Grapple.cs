@@ -13,7 +13,8 @@ namespace SuperSquirrel.Entities.RopePhysics
 	{
 		private const int MASS = 50;
 		private const int HEAD_OFFSET = 24;
-		private const int MAX_ROPE_LENGTH = 150;
+		private const int MAX_ROPE_LENGTH = 250;
+		private const int ABANDONED_DURATION = 10000;
 
 		private Player player;
 		private Sprite sprite;
@@ -34,6 +35,8 @@ namespace SuperSquirrel.Entities.RopePhysics
 
 		public bool Ready { get; private set; }
 		public bool Active { get; private set; }
+		public bool Retracting { get; set; }
+		public bool Destroy { get; private set; }
 
 		public void Launch(Vector2 position, Vector2 velocity, float angle, Mass playerMass)
 		{
@@ -46,11 +49,12 @@ namespace SuperSquirrel.Entities.RopePhysics
 			Velocity = velocity;
 			Active = true;
 			Fixed = false;
+			Ready = false;
 		}
 
-		public void Retract()
+		public void Abandon()
 		{
-			Active = false;
+			Timer timer = new Timer(ABANDONED_DURATION, () => { Destroy = true; }, false);
 		}
 
 		public void Update(float dt)
@@ -60,6 +64,18 @@ namespace SuperSquirrel.Entities.RopePhysics
 			if (!Fixed)
 			{
 				CheckCollision();
+			}
+
+			if (Retracting)
+			{
+				Rope.Retract(dt);
+
+				if (Rope.FullyRetracted)
+				{
+					Active = false;
+					Ready = true;
+					Retracting = false;
+				}
 			}
 		}
 
