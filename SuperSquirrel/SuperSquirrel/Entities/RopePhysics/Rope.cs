@@ -165,7 +165,7 @@ namespace SuperSquirrel.Entities.RopePhysics
 		{
 			for (int i = 0; i < masses.Count - 1; i++)
 			{
-				DrawingFunctions.DrawLine(sb, masses[i].Position, masses[i + 1].Position, Color.Black);
+				DrawingFunctions.DrawLine(sb, masses[i].Position, masses[i + 1].Position, Color.White);
 			}
 		}
 	}

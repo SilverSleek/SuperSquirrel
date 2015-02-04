@@ -12,6 +12,11 @@ namespace SuperSquirrel.Common
 			whitePixel = ContentLoader.LoadTexture("WhitePixel");
 		}
 
+		public static void DrawPoint(SpriteBatch sb, Vector2 point, Color color)
+		{
+			sb.Draw(whitePixel, point, color);
+		}
+
 		public static void DrawLine(SpriteBatch sb, Vector2 start, Vector2 end, Color color)
 		{
 			float length = (end - start).Length();

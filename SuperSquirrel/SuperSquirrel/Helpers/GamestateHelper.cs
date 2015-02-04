@@ -65,6 +65,7 @@ namespace SuperSquirrel.Helpers
 
 		private void CreateGameplayEntities(List<ISimpleUpdateable> updateables, List<ISimpleDrawable> drawables)
 		{
+			/*
 			List<Laser> lasers = new List<Laser>();
 			List<Enemy> enemies = new List<Enemy>();
 			List<Planet> planets = new List<Planet>();
@@ -77,7 +78,7 @@ namespace SuperSquirrel.Helpers
 			//GenerationHelper generationHelper = new GenerationHelper(planets, enemies);
 
 			Hud hud = new Hud();
-			//Stars stars = new Stars();
+			Stars stars = new Stars();
 			Player player = new Player(planets[0], planetHelper);
 			//RopeTester ropeTester = new RopeTester();
 			TutorialIcons icons = new TutorialIcons(updateables, drawables);
@@ -101,9 +102,9 @@ namespace SuperSquirrel.Helpers
 			updateables.Add(laserHelper);
 			//updateables.Add(generationHelper);
 			updateables.Add(hud);
-			//updateables.Add(stars);
+			updateables.Add(stars);
 
-			//drawables.Add(stars);
+			drawables.Add(stars);
 			drawables.Add(planetWrapper);
 			drawables.Add(icons);
 			drawables.Add(grappleWrapper);
@@ -113,6 +114,12 @@ namespace SuperSquirrel.Helpers
 			drawables.Add(laserWrapper);
 			drawables.Add(Camera.Instance);
 			drawables.Add(hud);
+			*/
+
+			Stars stars = new Stars();
+
+			updateables.Add(stars);
+			drawables.Add(stars);
 		}
 	}
 }

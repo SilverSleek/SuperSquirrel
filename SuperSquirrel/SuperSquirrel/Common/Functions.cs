@@ -27,6 +27,11 @@ namespace SuperSquirrel.Common
 			return new Vector2(x, y);
 		}
 
+		public static Vector2 ComputePosition(float angle, float radius)
+		{
+			return ComputeDirection(angle) * radius;
+		}
+
 		public static Vector2 ProjectVector(Vector2 vector, Vector2 target)
 		{
 			// taken from http://en.wikipedia.org/wiki/Vector_projection

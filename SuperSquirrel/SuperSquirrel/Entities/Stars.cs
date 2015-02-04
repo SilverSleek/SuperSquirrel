@@ -11,79 +11,103 @@ namespace SuperSquirrel.Entities
 {
 	class Stars : ISimpleUpdateable, ISimpleDrawable
 	{
-		private const int EDGE_OFFSET = 3;
+		private const int DISTRIBUTION_RADIUS = 20;
+		private const int PROXIMITY_POINT_LIMIT = 8;
 
 		private Random random;
-		private Rectangle generationRect;
-		private Rectangle destructionRect;
-
 		private List<Star> stars;
 
 		public Stars()
 		{
 			random = new Random();
-			destructionRect = new Rectangle(0, 0, Constants.SCREEN_WIDTH + EDGE_OFFSET * 2, Constants.SCREEN_HEIGHT + EDGE_OFFSET * 2);
 			stars = new List<Star>();
+
+			GenerateStars();
+		}
+
+		private void GenerateStars()
+		{
+			List<Vector2> points = new List<Vector2>();
+			Vector2 startingPoint = new Vector2(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT) / 2;
+			points.Add(startingPoint);
+
+			while (points.Count > 0)
+			{
+				int pointsTested = 0;
+				int sourcePointIndex = random.Next(points.Count);
+
+				Vector2 sourcePoint = points[sourcePointIndex];
+
+				while (pointsTested < PROXIMITY_POINT_LIMIT)
+				{
+					Vector2 point = ComputePointWithinDistributionRange(sourcePoint);
+
+					if (CheckValidPoint(point))
+					{
+						points.Add(point);
+						stars.Add(new Star(point));
+
+						break;
+					}
+					else
+					{
+						pointsTested++;
+					}
+				}
+
+				if (pointsTested == PROXIMITY_POINT_LIMIT)
+				{
+					points.RemoveAt(sourcePointIndex);
+				}
+			}
+		}
+
+		private Vector2 ComputePointWithinDistributionRange(Vector2 sourcePoint)
+		{
+			float radius = random.Next(DISTRIBUTION_RADIUS, DISTRIBUTION_RADIUS * 2 + 1);
+			float angle = (float)random.NextDouble() * MathHelper.TwoPi;
+
+			return sourcePoint + Functions.ComputePosition(angle, radius);
+		}
+
+		private bool CheckValidPoint(Vector2 point)
+		{
+			if (point.X < 0 || point.X > Constants.SCREEN_WIDTH || point.Y < 0 || point.Y > Constants.SCREEN_HEIGHT)
+			{
+				return false;
+			}
+
+			for (int i = 0; i < stars.Count; i++)
+			{
+				if (Vector2.DistanceSquared(point, stars[i].Position) < DISTRIBUTION_RADIUS * DISTRIBUTION_RADIUS)
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		public void Update(float dt)
 		{
-			Vector2 cameraPosition = -Camera.Instance.Position;
-
-			destructionRect.X = (int)cameraPosition.X - Constants.SCREEN_WIDTH / 2 - EDGE_OFFSET;
-			destructionRect.Y = (int)cameraPosition.Y - Constants.SCREEN_HEIGHT / 2 - EDGE_OFFSET;
-
-			for (int i = 0; i < stars.Count; i++)
-			{
-				Vector2 position = stars[i].Sprite.Position;
-
-				if (!destructionRect.Contains((int)position.X, (int)position.Y))
-				{
-					stars.RemoveAt(i);
-				}
-			}
-
-			float x = (float)random.NextDouble() * Constants.SCREEN_WIDTH;
-			float y = (float)random.NextDouble() * Constants.SCREEN_HEIGHT;
-			
-			StarSizes size = (StarSizes)random.Next(0, 3);
-
-			stars.Add(new Star(new Vector2(x, y), Color.White, size));
 		}
 
 		public void Draw(SpriteBatch sb)
 		{
 			foreach (Star star in stars)
 			{
-				star.Sprite.Draw(sb);
+				DrawingFunctions.DrawPoint(sb, star.Position, Color.White);
 			}
-		}
-
-		private enum StarSizes
-		{
-			SMALL = 0,
-			MEDIUM = 1,
-			LARGE = 2
 		}
 
 		private class Star
 		{
-			private static Texture2D[] textures;
-
-			static Star()
+			public Star(Vector2 position)
 			{
-				textures = new Texture2D[3];
-				textures[0] = ContentLoader.LoadTexture("Stars/Small");
-				textures[1] = ContentLoader.LoadTexture("Stars/Medium");
-				textures[2] = ContentLoader.LoadTexture("Stars/Large");
+				Position = position;
 			}
 
-			public Star(Vector2 position, Color color, StarSizes size)
-			{
-				Sprite = new Sprite(textures[(int)size], position, OriginLocations.CENTER, color);
-			}
-
-			public Sprite Sprite { get; private set; }
+			public Vector2 Position { get; private set; }
 		}
 	}
 }
